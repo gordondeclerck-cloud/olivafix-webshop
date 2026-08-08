@@ -17,6 +17,11 @@
   .error { color: #B3261E; font-size: 13px; }
   .msg { color: #1E4638; font-size: 13px; }
   #login { max-width: 320px; margin: 60px auto; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #E7E0CF; position: sticky; top: 0; background: #FBF8F1; padding-top: 4px; z-index: 10; }
+  .tab-btn { background: none; border: none; padding: 10px 14px; font-size: 13px; color: #7D7A6F; cursor: pointer; margin: 0; border-bottom: 2px solid transparent; }
+  .tab-btn.active { color: #1E4638; font-weight: 600; border-bottom: 2px solid #1E4638; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 </style>
 </head>
 <body>
@@ -32,59 +37,79 @@
 </div>
 
 <div id="app" style="display:none; max-width: 600px; margin: 0 auto;">
-  <h1>Bestellingen</h1>
-  <div id="orderList"></div>
-
-  <h1>Reviews</h1>
-  <div id="pendingReviewList"></div>
-
-  <div class="card">
-    <h3>Review handmatig toevoegen</h3>
-    <p style="font-size:12px;color:#7D7A6F;margin-top:-6px">Bijvoorbeeld overgenomen van een apothekerswebsite — geef altijd de bron mee.</p>
-    <label>Naam</label>
-    <input id="rev-name" placeholder="Bv. Marie D." />
-    <label>Score (1-5)</label>
-    <input id="rev-rating" type="number" min="1" max="5" value="5" />
-    <label>Reviewtekst</label>
-    <textarea id="rev-body"></textarea>
-    <label>Bron</label>
-    <input id="rev-source" placeholder="Bv. Apotheek Dupont, Lyon" />
-    <button onclick="addReview()">Review toevoegen</button>
-    <p class="error" id="revError"></p>
-    <p class="msg" id="revMsg"></p>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="orders" onclick="showTab('orders')">Bestellingen</button>
+    <button class="tab-btn" data-tab="reviews" onclick="showTab('reviews')">Reviews</button>
+    <button class="tab-btn" data-tab="products" onclick="showTab('products')">Producten</button>
   </div>
 
-  <h1>Goedgekeurde reviews</h1>
-  <div id="approvedReviewList"></div>
-
-  <h1>Producten beheren</h1>
-  <div id="productList"></div>
-
-  <div class="card">
-    <h3>Nieuw product toevoegen</h3>
-    <label>ID (uniek, bv. olv-9x75)</label>
-    <input id="new-id" />
-    <label>Naam</label>
-    <input id="new-name" />
-    <label>Variant (bv. "3 x 75g")</label>
-    <input id="new-variant" />
-    <label>Prijs in euro's (bv. 16.49)</label>
-    <input id="new-price" />
-    <label>Doorgestreepte prijs (optioneel)</label>
-    <input id="new-compare" />
-    <label>Beschrijving</label>
-    <textarea id="new-desc"></textarea>
-    <label>Afbeeldings-URL (optioneel, moet ergens gehost staan)</label>
-    <input id="new-image" />
-    <button onclick="createProduct()">Product toevoegen</button>
-    <p class="error" id="createError"></p>
-    <p class="msg" id="createMsg"></p>
+  <div id="tab-orders" class="tab-panel active">
+    <h1>Bestellingen</h1>
+    <div id="orderList"></div>
   </div>
+
+  <div id="tab-reviews" class="tab-panel">
+    <h1>Nieuwe reviews</h1>
+    <div id="pendingReviewList"></div>
+
+    <div class="card">
+      <h3>Review handmatig toevoegen</h3>
+      <p style="font-size:12px;color:#7D7A6F;margin-top:-6px">Bijvoorbeeld overgenomen van een apothekerswebsite — geef altijd de bron mee.</p>
+      <label>Naam</label>
+      <input id="rev-name" placeholder="Bv. Marie D." />
+      <label>Score (1-5)</label>
+      <input id="rev-rating" type="number" min="1" max="5" value="5" />
+      <label>Reviewtekst</label>
+      <textarea id="rev-body"></textarea>
+      <label>Bron</label>
+      <input id="rev-source" placeholder="Bv. Apotheek Dupont, Lyon" />
+      <button onclick="addReview()">Review toevoegen</button>
+      <p class="error" id="revError"></p>
+      <p class="msg" id="revMsg"></p>
+    </div>
+
+    <h1>Goedgekeurde reviews</h1>
+    <div id="approvedReviewList"></div>
+  </div>
+
+  <div id="tab-products" class="tab-panel">
+    <h1>Producten beheren</h1>
+    <div id="productList"></div>
+
+    <div class="card">
+      <h3>Nieuw product toevoegen</h3>
+      <label>ID (uniek, bv. olv-9x75)</label>
+      <input id="new-id" />
+      <label>Naam</label>
+      <input id="new-name" />
+      <label>Variant (bv. "3 x 75g")</label>
+      <input id="new-variant" />
+      <label>Prijs in euro's (bv. 16.49)</label>
+      <input id="new-price" />
+      <label>Doorgestreepte prijs (optioneel)</label>
+      <input id="new-compare" />
+      <label>Beschrijving</label>
+      <textarea id="new-desc"></textarea>
+      <label>Afbeeldings-URL (optioneel, moet ergens gehost staan)</label>
+      <input id="new-image" />
+      <button onclick="createProduct()">Product toevoegen</button>
+      <p class="error" id="createError"></p>
+      <p class="msg" id="createMsg"></p>
+    </div>
+  </div>
+
 </div>
 
 <script>
 let backendUrl = "";
 let password = "";
+
+function showTab(name) {
+  document.querySelectorAll(".tab-panel").forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach((el) => el.classList.remove("active"));
+  document.getElementById(`tab-${name}`).classList.add("active");
+  document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add("active");
+}
 
 function login() {
   backendUrl = document.getElementById("backendUrl").value.replace(/\/$/, "");
@@ -162,6 +187,7 @@ function renderOrders(orders) {
         <p style="font-size:13px;color:#7D7A6F;margin:6px 0">${date} · ${o.customer_email || "geen e-mail"}</p>
         <p style="font-size:13px">${itemsText} — €${(o.amount_total/100).toFixed(2)}</p>
         <p style="font-size:13px">${o.shipping_name || ""}<br/>${o.shipping_address || "Geen adres bekend"}</p>
+        ${o.address_warning ? `<p style="font-size:12px;color:#B3261E;background:#FBEAEA;padding:6px 8px;border-radius:3px">⚠️ ${o.address_warning}</p>` : ""}
         <label>bpost track & trace-code</label>
         <input id="tracking-${o.id}" placeholder="bv. 323412345678" />
         <button onclick="shipOrder(${o.id})">Markeer als verzonden</button>
