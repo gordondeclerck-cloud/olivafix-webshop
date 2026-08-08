@@ -179,6 +179,7 @@ function StarRow({ rating, size = 14 }) {
 }
 
 function ReviewsSection({ reviews }) {
+  const [showCount, setShowCount] = useState(9);
   if (reviews.length === 0) return null;
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
   return (
@@ -191,7 +192,7 @@ function ReviewsSection({ reviews }) {
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
-        {reviews.slice(0, 9).map((r) => (
+        {reviews.slice(0, showCount).map((r) => (
           <div key={r.id} style={{ background: "#FFFFFF", border: "1px solid #E7E0CF", borderRadius: 4, padding: 20 }}>
             <StarRow rating={r.rating} />
             <p style={{ fontSize: 14, color: "#2B2A26", lineHeight: 1.6, margin: "10px 0" }}>{r.body}</p>
@@ -201,6 +202,17 @@ function ReviewsSection({ reviews }) {
           </div>
         ))}
       </div>
+      {reviews.length > showCount && (
+        <div style={{ textAlign: "center", marginTop: 32 }}>
+          <button
+            onClick={() => setShowCount((c) => c + 9)}
+            className="of-btn of-focus"
+            style={{ background: "none", border: "1px solid #1E4638", color: "#1E4638", padding: "12px 28px", fontSize: 12, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+          >
+            Toon meer reviews ({reviews.length - showCount} resterend)
+          </button>
+        </div>
+      )}
     </section>
   );
 }
