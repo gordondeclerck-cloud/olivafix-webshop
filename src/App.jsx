@@ -436,6 +436,21 @@ export default function OlivafixShop() {
         </div>
       </header>
 
+      {page === "home" && reviews.length > 0 && (
+        <a
+          href="#reviews"
+          className="of-focus"
+          style={{ display: "block", background: "#F5F1E6", borderBottom: "1px solid #E7E0CF", padding: "10px 24px", textAlign: "center", textDecoration: "none", color: "#2B2A26", cursor: "pointer" }}
+        >
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+            <StarRow rating={Math.round(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length)} size={14} />
+            <span className="of-mono">{(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)} / 5</span>
+            <span style={{ color: "#7D7A6F" }}>— {reviews.length} reviews van klanten</span>
+            <ChevronRight size={13} style={{ transform: "rotate(90deg)" }} />
+          </span>
+        </a>
+      )}
+
       {page === "success" && (
         <SuccessUpsell
           products={products}
