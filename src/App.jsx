@@ -421,11 +421,8 @@ export default function OlivafixShop() {
       {/* Nav */}
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "rgba(251,248,241,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid #E7E0CF" }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div onClick={() => setPage("home")} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-            <Leaf size={20} color="#1E4638" strokeWidth={1.5} />
-            <div className="of-display" style={{ fontSize: 20, fontWeight: 600, letterSpacing: 0.2 }}>
-              Oliva<span style={{ color: "#B8933D" }}>Fix</span> <span style={{ fontSize: 13, color: "#7D8B5A", fontWeight: 500 }}>Gold</span>
-            </div>
+          <div onClick={() => setPage("home")} style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <img src="/logo.png" alt="OlivaFix Gold" style={{ height: 32, width: "auto", display: "block" }} />
           </div>
           <button onClick={() => setCartOpen(true)} className="of-focus" style={{ background: "none", border: "none", cursor: "pointer", position: "relative", color: "#2B2A26" }} aria-label="Winkelwagen openen">
             <ShoppingBag size={20} strokeWidth={1.5} />
