@@ -220,22 +220,6 @@ export default function OlivafixShop() {
         </div>
       </section>
 
-      {/* Lifestyle gallery */}
-      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "72px 24px" }}>
-        <div className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>In het dagelijks leven</div>
-        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 32 }}>OlivaFix Gold, zoals het gebruikt wordt.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
-          {GALLERY.map((g) => (
-            <figure key={g.caption} style={{ margin: 0 }}>
-              <div style={{ borderRadius: 4, overflow: "hidden", background: "#F5F1E6" }}>
-                <img src={g.src} alt={g.caption} style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }} />
-              </div>
-              <figcaption style={{ fontSize: 12, color: "#7D7A6F", marginTop: 10 }}>{g.caption}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
       <footer style={{ padding: "40px 24px", textAlign: "center", color: "#A6A18E", fontSize: 12 }}>
         OlivaFix Gold — een product van Bonyf. Swiss made.
       </footer>
