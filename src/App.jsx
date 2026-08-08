@@ -31,8 +31,6 @@ function mapProduct(row) {
   };
 }
 
-const HERO_IMAGE = null; // vul een foto-URL in zodra je die hebt (via admin.html of hier rechtstreeks)
-
 const REMOVED = ["Zink", "Minerale olie", "Vaseline", "Kleurstoffen", "Conserveermiddelen"];
 
 function currency(n) {
