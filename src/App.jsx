@@ -168,6 +168,107 @@ function InfoPage({ page, onBack }) {
   );
 }
 
+function StarRow({ rating, size = 14 }) {
+  return (
+    <span style={{ display: "inline-flex", gap: 1 }}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span key={n} style={{ color: n <= rating ? "#B8933D" : "#E7E0CF", fontSize: size }}>★</span>
+      ))}
+    </span>
+  );
+}
+
+function ReviewsSection({ reviews }) {
+  if (reviews.length === 0) return null;
+  const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+  return (
+    <section id="reviews" style={{ maxWidth: 1180, margin: "0 auto", padding: "64px 24px" }}>
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
+        <div className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Wat klanten zeggen</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <StarRow rating={Math.round(avg)} size={18} />
+          <span className="of-mono" style={{ fontSize: 13, color: "#7D7A6F" }}>{avg.toFixed(1)} / 5 — {reviews.length} reviews</span>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
+        {reviews.slice(0, 9).map((r) => (
+          <div key={r.id} style={{ background: "#FFFFFF", border: "1px solid #E7E0CF", borderRadius: 4, padding: 20 }}>
+            <StarRow rating={r.rating} />
+            <p style={{ fontSize: 14, color: "#2B2A26", lineHeight: 1.6, margin: "10px 0" }}>{r.body}</p>
+            <div style={{ fontSize: 12, color: "#7D7A6F" }}>
+              {r.author_name}{r.verified && <span style={{ color: "#1E4638" }}> · geverifieerde aankoop</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ReviewFormPage({ orderId, onDone }) {
+  const [name, setName] = useState("");
+  const [rating, setRating] = useState(5);
+  const [body, setBody] = useState("");
+  const [status, setStatus] = useState(null); // null | "sending" | "sent" | "error"
+
+  const submit = async () => {
+    if (!name.trim() || !body.trim()) return;
+    setStatus("sending");
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ author_name: name.trim(), rating, body: body.trim(), order_id: orderId }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "sent") {
+    return (
+      <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>Bedankt voor je review!</h1>
+        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 24 }}>We bekijken je bericht en plaatsen het snel op de site.</p>
+        <button onClick={onDone} className="of-focus" style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}>Naar de winkel</button>
+      </section>
+    );
+  }
+
+  return (
+    <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Laat een review achter</h1>
+      <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 28 }}>Wat vond je van OlivaFix Gold? Jouw ervaring helpt andere kunstgebitdragers.</p>
+
+      <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>Score</label>
+      <div style={{ marginBottom: 20 }}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button key={n} onClick={() => setRating(n)} className="of-focus" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 26, padding: 2, color: n <= rating ? "#B8933D" : "#D8D2BE" }}>★</button>
+        ))}
+      </div>
+
+      <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>Je naam</label>
+      <input value={name} onChange={(e) => setName(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} placeholder="Bijvoorbeeld: Marie D." />
+
+      <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>Je review</label>
+      <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} style={{ ...inputStyle, marginBottom: 20, resize: "vertical" }} placeholder="Vertel over je ervaring..." />
+
+      {status === "error" && <p style={{ color: "#B3261E", fontSize: 13, marginBottom: 12 }}>Er ging iets mis. Probeer het opnieuw.</p>}
+
+      <button
+        onClick={submit}
+        disabled={status === "sending"}
+        className="of-btn of-focus"
+        style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 13, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+      >
+        {status === "sending" ? "Bezig..." : "Review versturen"}
+      </button>
+    </section>
+  );
+}
+
 const NAV_LINKS = [
   { key: "about", label: "Over OlivaFix Gold" },
   { key: "science", label: "Wetenschappelijke info" },
@@ -194,13 +295,27 @@ export default function OlivafixShop() {
       .finally(() => setLoadingProducts(false));
   }, []);
 
+  const [reviews, setReviews] = useState([]);
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/reviews`)
+      .then((res) => res.json())
+      .then((rows) => setReviews(Array.isArray(rows) ? rows : []))
+      .catch(() => setReviews([]));
+  }, []);
+
   // Detecteert of Stripe de klant net heeft teruggestuurd na een geslaagde betaling
   const [stripeSessionId, setStripeSessionId] = useState(null);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
   useEffect(() => {
     if (window.location.pathname === "/success") {
       setPage("success");
       const params = new URLSearchParams(window.location.search);
       setStripeSessionId(params.get("session_id"));
+    }
+    if (window.location.pathname === "/review") {
+      setPage("review");
+      const params = new URLSearchParams(window.location.search);
+      setReviewOrderId(params.get("order"));
     }
   }, []);
 
@@ -330,7 +445,14 @@ export default function OlivafixShop() {
         />
       )}
 
-      {page !== "home" && page !== "success" && <InfoPage page={page} onBack={() => setPage("home")} />}
+      {page === "review" && (
+        <ReviewFormPage
+          orderId={reviewOrderId}
+          onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }}
+        />
+      )}
+
+      {page !== "home" && page !== "success" && page !== "review" && <InfoPage page={page} onBack={() => setPage("home")} />}
 
       {page === "home" && <>
       {/* Video */}
@@ -443,6 +565,8 @@ export default function OlivafixShop() {
           </div>
         </div>
       </section>
+
+      <ReviewsSection reviews={reviews} />
       </>}
 
       <footer style={{ padding: "40px 24px", textAlign: "center", color: "#A6A18E", fontSize: 12 }}>
