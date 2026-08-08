@@ -35,6 +35,28 @@
   <h1>Bestellingen</h1>
   <div id="orderList"></div>
 
+  <h1>Reviews</h1>
+  <div id="pendingReviewList"></div>
+
+  <div class="card">
+    <h3>Review handmatig toevoegen</h3>
+    <p style="font-size:12px;color:#7D7A6F;margin-top:-6px">Bijvoorbeeld overgenomen van een apothekerswebsite — geef altijd de bron mee.</p>
+    <label>Naam</label>
+    <input id="rev-name" placeholder="Bv. Marie D." />
+    <label>Score (1-5)</label>
+    <input id="rev-rating" type="number" min="1" max="5" value="5" />
+    <label>Reviewtekst</label>
+    <textarea id="rev-body"></textarea>
+    <label>Bron</label>
+    <input id="rev-source" placeholder="Bv. Apotheek Dupont, Lyon" />
+    <button onclick="addReview()">Review toevoegen</button>
+    <p class="error" id="revError"></p>
+    <p class="msg" id="revMsg"></p>
+  </div>
+
+  <h1>Goedgekeurde reviews</h1>
+  <div id="approvedReviewList"></div>
+
   <h1>Producten beheren</h1>
   <div id="productList"></div>
 
@@ -87,6 +109,7 @@ async function loadProducts() {
     document.getElementById("app").style.display = "block";
     renderProducts(products);
     loadOrders();
+    loadReviews();
   } catch (err) {
     document.getElementById("loginError").textContent = "Kon geen verbinding maken. Klopt de backend-URL?";
   }
@@ -232,6 +255,98 @@ async function createProduct() {
     msgEl.textContent = "Product toegevoegd!";
     ["new-id","new-name","new-variant","new-price","new-compare","new-desc","new-image"].forEach(id => document.getElementById(id).value = "");
     loadProducts();
+  } catch (err) {
+    errorEl.textContent = "Fout: " + err.message;
+  }
+}
+
+async function loadReviews() {
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/reviews`, {
+      headers: { "x-admin-password": password },
+    });
+    const reviews = await res.json();
+    if (!Array.isArray(reviews)) throw new Error();
+    renderReviews(reviews.filter(r => !r.approved), "pendingReviewList", true);
+    renderReviews(reviews.filter(r => r.approved), "approvedReviewList", false);
+  } catch (err) {
+    document.getElementById("pendingReviewList").innerHTML = `<p class="error">Kon reviews niet laden.</p>`;
+  }
+}
+
+function renderReviews(reviews, elId, showApprove) {
+  const el = document.getElementById(elId);
+  if (reviews.length === 0) {
+    el.innerHTML = `<p style="color:#7D7A6F;font-size:13px">${showApprove ? "Geen nieuwe reviews om te beoordelen." : "Nog geen goedgekeurde reviews."}</p>`;
+    return;
+  }
+  el.innerHTML = "";
+  reviews.forEach((r) => {
+    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="row">
+        <strong>${r.author_name}</strong>
+        <span style="color:#B8933D">${stars}</span>
+      </div>
+      <p style="font-size:13px;margin:8px 0">${r.body}</p>
+      <p style="font-size:11px;color:#7D7A6F">${r.source || (r.verified ? "Geverifieerde klant" : "Zelf ingediend")}</p>
+      <div class="row" style="margin-top:8px">
+        ${showApprove ? `<button onclick="approveReview(${r.id})">Goedkeuren</button>` : ""}
+        <button class="danger" onclick="deleteReview(${r.id})">Verwijderen</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+async function approveReview(id) {
+  await fetch(`${backendUrl}/api/admin/reviews/${id}/approve`, {
+    method: "POST",
+    headers: { "x-admin-password": password },
+  });
+  loadReviews();
+}
+
+async function deleteReview(id) {
+  if (!confirm("Deze review verwijderen?")) return;
+  await fetch(`${backendUrl}/api/admin/reviews/${id}`, {
+    method: "DELETE",
+    headers: { "x-admin-password": password },
+  });
+  loadReviews();
+}
+
+async function addReview() {
+  const errorEl = document.getElementById("revError");
+  const msgEl = document.getElementById("revMsg");
+  errorEl.textContent = "";
+  msgEl.textContent = "";
+
+  const body = {
+    author_name: document.getElementById("rev-name").value.trim(),
+    rating: parseInt(document.getElementById("rev-rating").value, 10),
+    body: document.getElementById("rev-body").value.trim(),
+    source: document.getElementById("rev-source").value.trim(),
+  };
+  if (!body.author_name || !body.body || !body.rating) {
+    errorEl.textContent = "Vul naam, score en tekst in.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Onbekende fout");
+    msgEl.textContent = "Review toegevoegd!";
+    ["rev-name","rev-body","rev-source"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("rev-rating").value = "5";
+    loadReviews();
   } catch (err) {
     errorEl.textContent = "Fout: " + err.message;
   }
