@@ -97,10 +97,13 @@ async function loadOrders() {
     const res = await fetch(`${backendUrl}/api/admin/orders`, {
       headers: { "x-admin-password": password },
     });
-    const orders = await res.json();
-    renderOrders(orders);
+    const data = await res.json();
+    if (!res.ok || !Array.isArray(data)) {
+      throw new Error(data.error || `Serverfout (${res.status})`);
+    }
+    renderOrders(data);
   } catch (err) {
-    document.getElementById("orderList").innerHTML = `<p class="error">Kon bestellingen niet laden.</p>`;
+    document.getElementById("orderList").innerHTML = `<p class="error">Kon bestellingen niet laden: ${err.message}</p>`;
   }
 }
 
