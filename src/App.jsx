@@ -26,7 +26,7 @@ function mapProduct(row) {
     variant: row.variant,
     price: row.price_cents / 100,
     compareAt: row.compare_at_cents ? row.compare_at_cents / 100 : null,
-    image: (row.image_path && row.image_path.startsWith("http")) ? row.image_path : null,
+    image: (row.image_path && row.image_path.startsWith("http")) ? row.image_path : (IMAGE_MAP[row.id] || null),
     desc: row.description || "",
   };
 }
