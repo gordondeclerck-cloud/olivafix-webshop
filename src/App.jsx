@@ -333,6 +333,20 @@ export default function OlivafixShop() {
       {page !== "home" && page !== "success" && <InfoPage page={page} onBack={() => setPage("home")} />}
 
       {page === "home" && <>
+      {/* Video */}
+      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 0", textAlign: "center" }}>
+        <div style={{ maxWidth: 340, margin: "0 auto" }}>
+          <video
+            controls
+            playsInline
+            poster="/video-poster.jpg"
+            style={{ width: "100%", borderRadius: 8, display: "block", boxShadow: "0 12px 32px rgba(30,70,56,0.15)" }}
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </section>
+
       {/* Hero */}
       <section style={{ maxWidth: 1180, margin: "0 auto", padding: "56px 24px 64px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
         <div>
