@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/success", "destination": "/index.html" },
-    { "source": "/review", "destination": "/index.html" }
+    { "source": "/review", "destination": "/index.html" },
+    { "source": "/quiz", "destination": "/index.html" }
   ]
 }
