@@ -281,6 +281,161 @@ function ReviewFormPage({ orderId, onDone }) {
   );
 }
 
+const QUIZ_QUESTIONS = [
+  {
+    id: "brand",
+    text: "Welke kleefpasta gebruik je op dit moment?",
+    options: ["Een bekend supermarktmerk", "Een apotheekmerk", "Wisselend, ik ben nog op zoek", "Nog geen vast merk"],
+  },
+  {
+    id: "reapply",
+    text: "Hoe vaak moet je tijdens de dag bijsmeren?",
+    options: ["Nooit", "1 keer", "2 tot 3 keer", "Meer dan 3 keer"],
+  },
+  {
+    id: "taste",
+    text: "Hinder de smaak of geur van je kleefpasta je weleens?",
+    options: ["Ja, vaak", "Soms", "Zelden", "Nooit opgemerkt"],
+  },
+  {
+    id: "moment",
+    text: "Had je ooit een ongemakkelijk moment door je kleefpasta — tijdens eten, lachen of praten?",
+    options: ["Ja, regelmatig", "Af en toe", "Zelden", "Nooit"],
+  },
+  {
+    id: "priority",
+    text: "Wat vind je het belangrijkst in een kleefpasta?",
+    options: ["Houdt de hele dag", "Natuurlijke ingrediënten", "Neutrale smaak en geur", "Prijs"],
+  },
+];
+
+function computeQuizTier(answers) {
+  const values = Object.values(answers);
+  const score = values.reduce((sum, i) => sum + i, 0);
+  const ratio = score / (QUIZ_QUESTIONS.length * 3);
+
+  if (ratio >= 0.6) {
+    return {
+      label: "Hoog tijd voor een frisse start",
+      copy: "Je merkt duidelijk hinder van je huidige kleefpasta — vaak bijsmeren, een vieze nasmaak, of net dat ene ongemakkelijke moment. OlivaFix Gold is gemaakt met olijfolie in plaats van synthetische chemicaliën: neutrale smaak, en houvast die de hele dag meegaat.",
+    };
+  }
+  if (ratio >= 0.3) {
+    return {
+      label: "Ruimte voor verbetering",
+      copy: "Je huidige kleefpasta doet zijn werk, maar niet zonder kleine ergernissen. Veel van onze klanten kwamen net om die reden over: minder bijsmeren, en geen chemische bijsmaak meer dankzij de olijfolie-basis van OlivaFix Gold.",
+    };
+  }
+  return {
+    label: "Je zit al best goed — maar dit kan nog beter",
+    copy: "Je huidige kleefpasta stoort je weinig, knap. Toch kiezen steeds meer mensen bewust voor een natuurlijke basis in plaats van synthetische chemicaliën. OlivaFix Gold geeft dezelfde houvast, met olijfolie in plaats van chemicaliën.",
+  };
+}
+
+function QuizPage({ onDone }) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [status, setStatus] = useState(null); // null | "sending" | "sent" | "error"
+
+  const total = QUIZ_QUESTIONS.length;
+  const isDone = step >= total;
+  const tier = isDone ? computeQuizTier(answers) : null;
+
+  const selectAnswer = (optionIndex) => {
+    const q = QUIZ_QUESTIONS[step];
+    setAnswers((prev) => ({ ...prev, [q.id]: optionIndex }));
+    setStep((s) => s + 1);
+  };
+
+  const submit = async () => {
+    if (!email.includes("@")) { setStatus("error"); return; }
+    if (!consent) { setStatus("error"); return; }
+    setStatus("sending");
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/quiz-lead`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, answers, tier: tier.label, marketingConsent: consent }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "sent") {
+    return (
+      <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>{tier.label}</h1>
+        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 24 }}>{tier.copy}</p>
+        <p style={{ color: "#7D7A6F", fontSize: 13, marginBottom: 24 }}>Check je inbox — je kortingscode is onderweg.</p>
+        <button onClick={onDone} className="of-focus" style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}>Naar de winkel</button>
+      </section>
+    );
+  }
+
+  if (isDone) {
+    return (
+      <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Je resultaat is klaar</h1>
+        <div style={{ position: "relative", marginBottom: 24 }}>
+          <div style={{ filter: "blur(6px)", userSelect: "none", padding: 18, background: "#F5F1E6", borderRadius: 6 }}>
+            <p style={{ fontWeight: 600, marginBottom: 6 }}>{tier.label}</p>
+            <p style={{ fontSize: 14, color: "#7D7A6F" }}>{tier.copy}</p>
+          </div>
+        </div>
+        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 20 }}>Vul je e-mailadres in om je volledige resultaat en een persoonlijke kortingscode te ontvangen.</p>
+
+        <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} placeholder="jouw@email.be" />
+
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: "#7D7A6F", marginBottom: 20 }}>
+          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
+          <span>Ja, stuur me mijn resultaat en houd me op de hoogte van OlivaFix-aanbiedingen per e-mail.</span>
+        </label>
+
+        {status === "error" && <p style={{ color: "#B3261E", fontSize: 13, marginBottom: 12 }}>Vul een geldig e-mailadres in en vink het vakje aan.</p>}
+
+        <button
+          onClick={submit}
+          disabled={status === "sending"}
+          className="of-btn of-focus"
+          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 13, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+        >
+          {status === "sending" ? "Bezig..." : "Toon mijn resultaat"}
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <div style={{ height: 4, borderRadius: 999, background: "#E7E0CF", overflow: "hidden", marginBottom: 8 }}>
+        <div style={{ height: "100%", width: `${(step / total) * 100}%`, background: "#B8933D", transition: "width 0.3s ease" }} />
+      </div>
+      <p className="of-mono" style={{ fontSize: 11, color: "#7D7A6F", marginBottom: 20 }}>Vraag {step + 1} van {total}</p>
+
+      <h1 className="of-display" style={{ fontSize: 24, fontWeight: 600, marginBottom: 22, lineHeight: 1.3 }}>{QUIZ_QUESTIONS[step].text}</h1>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {QUIZ_QUESTIONS[step].options.map((opt) => (
+          <button
+            key={opt}
+            onClick={() => selectAnswer(QUIZ_QUESTIONS[step].options.indexOf(opt))}
+            className="of-focus"
+            style={{ textAlign: "left", padding: "14px 16px", borderRadius: 3, border: "1px solid #D8D2BE", background: "#FFFFFF", fontSize: 15, color: "#2B2A26", cursor: "pointer" }}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const NAV_LINKS = [
   { key: "about", label: "Over OlivaFix Gold" },
   { key: "science", label: "Wetenschappelijke info" },
@@ -328,6 +483,9 @@ export default function OlivafixShop() {
       setPage("review");
       const params = new URLSearchParams(window.location.search);
       setReviewOrderId(params.get("order"));
+    }
+    if (window.location.pathname === "/quiz") {
+      setPage("quiz");
     }
   }, []);
 
@@ -476,7 +634,11 @@ export default function OlivafixShop() {
         />
       )}
 
-      {page !== "home" && page !== "success" && page !== "review" && <InfoPage page={page} onBack={() => setPage("home")} />}
+      {page === "quiz" && (
+        <QuizPage onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }} />
+      )}
+
+      {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && <InfoPage page={page} onBack={() => setPage("home")} />}
 
       {page === "home" && <>
       {/* Video */}
