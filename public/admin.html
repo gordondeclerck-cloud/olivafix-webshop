@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OlivaFix — Beheer</title>
+<style>
+  body { font-family: -apple-system, Inter, sans-serif; background: #FBF8F1; color: #2B2A26; margin: 0; padding: 20px; }
+  h1 { font-size: 20px; }
+  h3 { font-size: 15px; margin: 0 0 4px; }
+  .card { background: #fff; border: 1px solid #E7E0CF; border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+  label { display: block; font-size: 12px; color: #7D7A6F; margin: 10px 0 4px; }
+  input, textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #D8D2BE; border-radius: 4px; font-size: 14px; }
+  button { background: #1E4638; color: #FBF8F1; border: none; padding: 12px 18px; border-radius: 4px; font-size: 13px; cursor: pointer; margin-top: 10px; }
+  button.danger { background: #B3261E; }
+  button.secondary { background: none; border: 1px solid #D8D2BE; color: #2B2A26; }
+  .row { display: flex; justify-content: space-between; align-items: center; }
+  .error { color: #B3261E; font-size: 13px; }
+  .msg { color: #1E4638; font-size: 13px; }
+  #login { max-width: 320px; margin: 60px auto; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid #E7E0CF; overflow-x: auto; }
+  .tab-btn { background: none; border: none; padding: 10px 14px; font-size: 13px; color: #7D7A6F; cursor: pointer; margin: 0; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .tab-btn.active { color: #1E4638; font-weight: 600; border-bottom: 2px solid #1E4638; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .stat-box { flex: 1; text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 600; }
+  .stat-label { font-size: 12px; color: #7D7A6F; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>OlivaFix — Beheer</h1>
+  <label>Backend-URL</label>
+  <input id="backendUrl" placeholder="https://proactive-happiness-production.up.railway.app" />
+  <label>Beheerderswachtwoord</label>
+  <input id="password" type="password" />
+  <button onclick="login()">Inloggen</button>
+  <p class="error" id="loginError"></p>
+</div>
+
+<div id="app" style="display:none; max-width: 600px; margin: 0 auto;">
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="orders" onclick="switchTab('orders')">Bestellingen</button>
+    <button class="tab-btn" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
+    <button class="tab-btn" data-tab="products" onclick="switchTab('products')">Producten</button>
+    <button class="tab-btn" data-tab="leads" onclick="switchTab('leads')">Weetjes-leads</button>
+  </div>
+
+  <!-- Tabblad: Bestellingen / Track & Trace -->
+  <div class="tab-panel active" id="tab-orders">
+    <h1>Bestellingen</h1>
+    <div id="orderList"></div>
+  </div>
+
+  <!-- Tabblad: Reviews -->
+  <div class="tab-panel" id="tab-reviews">
+    <h1>Nieuwe reviews</h1>
+    <div id="pendingReviewList"></div>
+
+    <div class="card">
+      <h3>Review handmatig toevoegen</h3>
+      <p style="font-size:12px;color:#7D7A6F;margin-top:-6px">Bijvoorbeeld overgenomen van een apothekerswebsite — geef altijd de bron mee.</p>
+      <label>Naam</label>
+      <input id="rev-name" placeholder="Bv. Marie D." />
+      <label>Score (1-5)</label>
+      <input id="rev-rating" type="number" min="1" max="5" value="5" />
+      <label>Reviewtekst</label>
+      <textarea id="rev-body"></textarea>
+      <label>Bron</label>
+      <input id="rev-source" placeholder="Bv. Apotheek Dupont, Lyon" />
+      <button onclick="addReview()">Review toevoegen</button>
+      <p class="error" id="revError"></p>
+      <p class="msg" id="revMsg"></p>
+    </div>
+
+    <h1>Goedgekeurde reviews</h1>
+    <div id="approvedReviewList"></div>
+  </div>
+
+  <!-- Tabblad: Producten -->
+  <div class="tab-panel" id="tab-products">
+    <h1>Producten beheren</h1>
+    <div id="productList"></div>
+
+    <div class="card">
+      <h3>Nieuw product toevoegen</h3>
+      <label>ID (uniek, bv. olv-9x75)</label>
+      <input id="new-id" />
+      <label>Naam</label>
+      <input id="new-name" />
+      <label>Variant (bv. "3 x 75g")</label>
+      <input id="new-variant" />
+      <label>Prijs in euro's (bv. 16.49)</label>
+      <input id="new-price" />
+      <label>Doorgestreepte prijs (optioneel)</label>
+      <input id="new-compare" />
+      <label>Beschrijving</label>
+      <textarea id="new-desc"></textarea>
+      <label>Afbeeldings-URL (optioneel, moet ergens gehost staan)</label>
+      <input id="new-image" />
+      <button onclick="createProduct()">Product toevoegen</button>
+      <p class="error" id="createError"></p>
+      <p class="msg" id="createMsg"></p>
+    </div>
+  </div>
+
+  <!-- Tabblad: Weetjes-leads -->
+  <div class="tab-panel" id="tab-leads">
+    <h1>Weetjes-leads</h1>
+    <div class="card" id="leadStats"></div>
+    <div id="leadList"></div>
+  </div>
+
+</div>
+
+<script>
+let backendUrl = "";
+let password = "";
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab-panel").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+  document.getElementById(`tab-${tab}`).classList.add("active");
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add("active");
+}
+
+function login() {
+  backendUrl = document.getElementById("backendUrl").value.replace(/\/$/, "");
+  password = document.getElementById("password").value;
+  localStorage.setItem("of_backend", backendUrl);
+  loadProducts();
+}
+
+// Prefill backend URL if remembered
+window.onload = () => {
+  const saved = localStorage.getItem("of_backend");
+  if (saved) document.getElementById("backendUrl").value = saved;
+};
+
+async function loadProducts() {
+  document.getElementById("loginError").textContent = "";
+  try {
+    const res = await fetch(`${backendUrl}/api/products`);
+    if (!res.ok) throw new Error("Kon producten niet laden.");
+    const products = await res.json();
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    renderProducts(products);
+    loadOrders();
+    loadReviews();
+    loadQuizLeads();
+  } catch (err) {
+    document.getElementById("loginError").textContent = "Kon geen verbinding maken. Klopt de backend-URL?";
+  }
+}
+
+async function loadOrders() {
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/orders`, {
+      headers: { "x-admin-password": password },
+    });
+    const data = await res.json();
+    if (!res.ok || !Array.isArray(data)) {
+      throw new Error(data.error || `Serverfout (${res.status})`);
+    }
+    renderOrders(data);
+  } catch (err) {
+    document.getElementById("orderList").innerHTML = `<p class="error">Kon bestellingen niet laden: ${err.message}</p>`;
+  }
+}
+
+function renderOrders(orders) {
+  const el = document.getElementById("orderList");
+  if (orders.length === 0) {
+    el.innerHTML = `<p style="color:#7D7A6F;font-size:13px">Nog geen bestellingen.</p>`;
+    return;
+  }
+  el.innerHTML = "";
+  orders.forEach((o) => {
+    const itemsText = (o.items || []).map((i) => `${i.quantity}× ${i.name}`).join(", ") || "—";
+    const date = new Date(o.created_at).toLocaleDateString("nl-BE", { day: "numeric", month: "short", year: "numeric" });
+    const div = document.createElement("div");
+    div.className = "card";
+    if (o.status === "shipped") {
+      div.innerHTML = `
+        <div class="row">
+          <strong>#${o.id}</strong>
+          <span style="font-size:12px;color:#1E4638">✓ Verzonden</span>
+        </div>
+        <p style="font-size:13px;color:#7D7A6F;margin:6px 0">${date} · ${o.customer_email || "geen e-mail"}</p>
+        <p style="font-size:13px">${itemsText} — €${(o.amount_total/100).toFixed(2)}</p>
+        <p style="font-size:13px">${o.shipping_name || ""}<br/>${o.shipping_address || ""}</p>
+        <p style="font-size:12px;color:#7D7A6F">Track & trace (${o.carrier}): ${o.tracking_number}</p>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="row">
+          <strong>#${o.id}</strong>
+          <span style="font-size:12px;color:#B8933D">Te verzenden</span>
+        </div>
+        <p style="font-size:13px;color:#7D7A6F;margin:6px 0">${date} · ${o.customer_email || "geen e-mail"}</p>
+        <p style="font-size:13px">${itemsText} — €${(o.amount_total/100).toFixed(2)}</p>
+        <p style="font-size:13px">${o.shipping_name || ""}<br/>${o.shipping_address || "Geen adres bekend"}</p>
+        ${o.address_warning ? `<p style="font-size:12px;color:#B3261E;background:#FBEAEA;padding:6px 8px;border-radius:3px">⚠️ ${o.address_warning}</p>` : ""}
+        <label>bpost track & trace-code</label>
+        <input id="tracking-${o.id}" placeholder="bv. 323412345678" />
+        <button onclick="shipOrder(${o.id})">Markeer als verzonden</button>
+        <p class="error" id="shipError-${o.id}"></p>
+      `;
+    }
+    el.appendChild(div);
+  });
+}
+
+async function shipOrder(id) {
+  const tracking = document.getElementById(`tracking-${id}`).value.trim();
+  const errorEl = document.getElementById(`shipError-${id}`);
+  if (!tracking) {
+    errorEl.textContent = "Vul een trackingcode in.";
+    return;
+  }
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/orders/${id}/ship`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify({ tracking_number: tracking, carrier: "bpost" }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Onbekende fout");
+    loadOrders();
+  } catch (err) {
+    errorEl.textContent = "Fout: " + err.message;
+  }
+}
+
+function renderProducts(products) {
+  const el = document.getElementById("productList");
+  el.innerHTML = "";
+  products.forEach((p) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="row">
+        <div>
+          <strong>${p.name}</strong> — ${p.variant}<br/>
+          <span style="font-size:13px;color:#7D7A6F">€${(p.price_cents/100).toFixed(2)} · ID: ${p.id}</span>
+        </div>
+        <button class="danger" onclick="deleteProduct('${p.id}')">Verwijderen</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+async function deleteProduct(id) {
+  if (!confirm("Dit product verwijderen?")) return;
+  await fetch(`${backendUrl}/api/admin/products/${id}`, {
+    method: "DELETE",
+    headers: { "x-admin-password": password },
+  });
+  loadProducts();
+}
+
+async function createProduct() {
+  const errorEl = document.getElementById("createError");
+  const msgEl = document.getElementById("createMsg");
+  errorEl.textContent = "";
+  msgEl.textContent = "";
+
+  const body = {
+    id: document.getElementById("new-id").value.trim(),
+    name: document.getElementById("new-name").value.trim(),
+    variant: document.getElementById("new-variant").value.trim(),
+    price_cents: Math.round(parseFloat(document.getElementById("new-price").value) * 100),
+    compare_at_cents: document.getElementById("new-compare").value
+      ? Math.round(parseFloat(document.getElementById("new-compare").value) * 100)
+      : null,
+    description: document.getElementById("new-desc").value.trim(),
+    image_path: document.getElementById("new-image").value.trim(),
+  };
+
+  if (!body.id || !body.name || !body.variant || isNaN(body.price_cents)) {
+    errorEl.textContent = "Vul minstens ID, naam, variant en prijs in.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Onbekende fout");
+    msgEl.textContent = "Product toegevoegd!";
+    ["new-id","new-name","new-variant","new-price","new-compare","new-desc","new-image"].forEach(id => document.getElementById(id).value = "");
+    loadProducts();
+  } catch (err) {
+    errorEl.textContent = "Fout: " + err.message;
+  }
+}
+
+async function loadReviews() {
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/reviews`, {
+      headers: { "x-admin-password": password },
+    });
+    const reviews = await res.json();
+    if (!Array.isArray(reviews)) throw new Error();
+    renderReviews(reviews.filter(r => !r.approved), "pendingReviewList", true);
+    renderReviews(reviews.filter(r => r.approved), "approvedReviewList", false);
+  } catch (err) {
+    document.getElementById("pendingReviewList").innerHTML = `<p class="error">Kon reviews niet laden.</p>`;
+  }
+}
+
+function renderReviews(reviews, elId, showApprove) {
+  const el = document.getElementById(elId);
+  if (reviews.length === 0) {
+    el.innerHTML = `<p style="color:#7D7A6F;font-size:13px">${showApprove ? "Geen nieuwe reviews om te beoordelen." : "Nog geen goedgekeurde reviews."}</p>`;
+    return;
+  }
+  el.innerHTML = "";
+  reviews.forEach((r) => {
+    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="row">
+        <strong>${r.author_name}</strong>
+        <span style="color:#B8933D">${stars}</span>
+      </div>
+      <p style="font-size:13px;margin:8px 0">${r.body}</p>
+      <p style="font-size:11px;color:#7D7A6F">${r.source || (r.verified ? "Geverifieerde klant" : "Zelf ingediend")}</p>
+      <div class="row" style="margin-top:8px">
+        ${showApprove ? `<button onclick="approveReview(${r.id})">Goedkeuren</button>` : ""}
+        <button class="danger" onclick="deleteReview(${r.id})">Verwijderen</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+async function approveReview(id) {
+  await fetch(`${backendUrl}/api/admin/reviews/${id}/approve`, {
+    method: "POST",
+    headers: { "x-admin-password": password },
+  });
+  loadReviews();
+}
+
+async function deleteReview(id) {
+  if (!confirm("Deze review verwijderen?")) return;
+  await fetch(`${backendUrl}/api/admin/reviews/${id}`, {
+    method: "DELETE",
+    headers: { "x-admin-password": password },
+  });
+  loadReviews();
+}
+
+async function addReview() {
+  const errorEl = document.getElementById("revError");
+  const msgEl = document.getElementById("revMsg");
+  errorEl.textContent = "";
+  msgEl.textContent = "";
+
+  const body = {
+    author_name: document.getElementById("rev-name").value.trim(),
+    rating: parseInt(document.getElementById("rev-rating").value, 10),
+    body: document.getElementById("rev-body").value.trim(),
+    source: document.getElementById("rev-source").value.trim(),
+  };
+  if (!body.author_name || !body.body || !body.rating) {
+    errorEl.textContent = "Vul naam, score en tekst in.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Onbekende fout");
+    msgEl.textContent = "Review toegevoegd!";
+    ["rev-name","rev-body","rev-source"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("rev-rating").value = "5";
+    loadReviews();
+  } catch (err) {
+    errorEl.textContent = "Fout: " + err.message;
+  }
+}
+
+async function loadQuizLeads() {
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/quiz-leads`, {
+      headers: { "x-admin-password": password },
+    });
+    const data = await res.json();
+    if (!res.ok || !data.leads) throw new Error(data.error || `Serverfout (${res.status})`);
+    renderLeadStats(data.stats);
+    renderLeads(data.leads);
+  } catch (err) {
+    document.getElementById("leadStats").innerHTML = "";
+    document.getElementById("leadList").innerHTML = `<p class="error">Kon leads niet laden: ${err.message}</p>`;
+  }
+}
+
+function renderLeadStats(stats) {
+  document.getElementById("leadStats").innerHTML = `
+    <div class="row">
+      <div class="stat-box"><div class="stat-num">${stats.total_leads}</div><div class="stat-label">Leads</div></div>
+      <div class="stat-box"><div class="stat-num">${stats.purchased}</div><div class="stat-label">Kochten nadien</div></div>
+      <div class="stat-box"><div class="stat-num">${stats.conversion_rate}%</div><div class="stat-label">Conversie</div></div>
+    </div>
+  `;
+}
+
+function renderLeads(leads) {
+  const el = document.getElementById("leadList");
+  if (leads.length === 0) {
+    el.innerHTML = `<p style="color:#7D7A6F;font-size:13px">Nog geen leads.</p>`;
+    return;
+  }
+  el.innerHTML = "";
+  leads.forEach((l) => {
+    const date = new Date(l.created_at).toLocaleDateString("nl-BE", { day: "numeric", month: "short", year: "numeric" });
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="row">
+        <strong>${l.email}</strong>
+        <span style="font-size:12px;color:${l.purchased ? "#1E4638" : "#7D7A6F"}">${l.purchased ? "✓ Kocht" : "Nog geen aankoop"}</span>
+      </div>
+      <p style="font-size:12px;color:#7D7A6F;margin:6px 0">${date} · ${l.marketing_consent ? "marketing OK" : "geen marketing-toestemming"}</p>
+    `;
+    el.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
