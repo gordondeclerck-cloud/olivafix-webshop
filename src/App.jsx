@@ -292,9 +292,9 @@ const OLIVAFIX_FACTS = [
   },
   {
     title: "Klinisch onderzocht",
-    text: "In 2019 vergeleek de Complutense Universiteit van Madrid OlivaFix Gold met een toonaangevend merk bij 40 dragers van kunstgebitten. OlivaFix Gold hield langer vast én remde de groei van Candida albicans (een veelvoorkomende schimmel bij kunstgebitdragers) merkbaar af.",
-    linkLabel: "Lees de wetenschappelijke info →",
-    linkPage: "science",
+    text: "Een gezamenlijke studie van de Complutense Universiteit Madrid, de Universiteit van Porto, de Katholieke Universiteit van Viseu en de Universiteit van Bern (2021) vergeleek OlivaFix Gold met een toonaangevend merk. OlivaFix Gold hield langer vast én remde de groei van Candida albicans (een veelvoorkomende schimmel bij kunstgebitdragers) merkbaar af.",
+    linkLabel: "Lees de gepubliceerde studie →",
+    linkHref: "https://doi.org/10.3390/ijerph18073398",
   },
   {
     title: "Wat klanten zeggen",
@@ -378,14 +378,16 @@ function FactsPage({ onDone, onNavigate }) {
       <div style={{ background: "#F5F1E6", borderRadius: 8, padding: "32px 24px", marginBottom: 28, textAlign: "center" }}>
         <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 12 }}>{fact.title.toUpperCase()}</div>
         <p className="of-display" style={{ fontSize: 20, fontWeight: 500, lineHeight: 1.5, color: "#2B2A26" }}>{fact.text}</p>
-        {fact.linkPage && onNavigate && (
-          <button
-            onClick={() => onNavigate(fact.linkPage)}
+        {fact.linkHref && (
+          <a
+            href={fact.linkHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="of-focus"
-            style={{ background: "none", border: "none", color: "#1E4638", fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "12px 0 0", textDecoration: "underline" }}
+            style={{ display: "inline-block", color: "#1E4638", fontSize: 14, fontWeight: 600, cursor: "pointer", paddingTop: 12, textDecoration: "underline" }}
           >
             {fact.linkLabel}
-          </button>
+          </a>
         )}
       </div>
 
@@ -445,9 +447,9 @@ function QuizPopup({ onOpenQuiz }) {
           <X size={20} />
         </button>
         <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 10 }}>10% KORTING</div>
-        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>3 weetjes over OlivaFix Gold</h2>
+        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>4 weetjes over OlivaFix Gold</h2>
         <p style={{ color: "#7D7A6F", fontSize: 15, lineHeight: 1.5, marginBottom: 22 }}>
-          Ontdek in 3 korte weetjes wat OlivaFix Gold anders maakt — en ontvang 10% korting op je eerste bestelling.
+          Ontdek in 4 korte weetjes wat OlivaFix Gold anders maakt — en ontvang 10% korting op je eerste bestelling.
         </p>
         <button
           onClick={openFacts}
