@@ -291,12 +291,18 @@ const OLIVAFIX_FACTS = [
     text: "Olijfolie wordt al eeuwenlang gebruikt om mondweefsel te verzachten en te beschermen — lang voordat er synthetische kleefpasta's bestonden.",
   },
   {
+    title: "Klinisch onderzocht",
+    text: "In 2019 vergeleek de Complutense Universiteit van Madrid OlivaFix Gold met een toonaangevend merk bij 40 dragers van kunstgebitten. OlivaFix Gold hield langer vast én remde de groei van Candida albicans (een veelvoorkomende schimmel bij kunstgebitdragers) merkbaar af.",
+    linkLabel: "Lees de wetenschappelijke info →",
+    linkPage: "science",
+  },
+  {
     title: "Wat klanten zeggen",
     text: "Meerdere OlivaFix-klanten melden dat ze merkbaar minder vaak moeten bijsmeren dan met hun vorige kleefpasta. Lees hun ervaringen verderop bij de reviews.",
   },
 ];
 
-function FactsPage({ onDone }) {
+function FactsPage({ onDone, onNavigate }) {
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -372,6 +378,15 @@ function FactsPage({ onDone }) {
       <div style={{ background: "#F5F1E6", borderRadius: 8, padding: "32px 24px", marginBottom: 28, textAlign: "center" }}>
         <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 12 }}>{fact.title.toUpperCase()}</div>
         <p className="of-display" style={{ fontSize: 20, fontWeight: 500, lineHeight: 1.5, color: "#2B2A26" }}>{fact.text}</p>
+        {fact.linkPage && onNavigate && (
+          <button
+            onClick={() => onNavigate(fact.linkPage)}
+            className="of-focus"
+            style={{ background: "none", border: "none", color: "#1E4638", fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "12px 0 0", textDecoration: "underline" }}
+          >
+            {fact.linkLabel}
+          </button>
+        )}
       </div>
 
       <button
@@ -654,7 +669,10 @@ export default function OlivafixShop() {
       )}
 
       {page === "quiz" && (
-        <FactsPage onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }} />
+        <FactsPage
+          onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }}
+          onNavigate={(page) => { window.history.replaceState({}, "", "/"); setPage(page); }}
+        />
       )}
 
       {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && <InfoPage page={page} onBack={() => setPage("home")} />}
