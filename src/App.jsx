@@ -102,13 +102,13 @@ function SuccessUpsell({ products, onBuy, upsellStatus, onContinue }) {
           <Check size={24} />
         </div>
         <h1 className="of-display" style={{ fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 600, margin: "0 0 10px" }}>Bedankt voor je bestelling!</h1>
-        <p style={{ color: "#7D7A6F", fontSize: 15 }}>Je ontvangt zo een bevestiging per e-mail. We pakken je pakket zo snel mogelijk in.</p>
+        <p style={{ color: "#7D7A6F", fontSize: 15 , lineHeight: 1.6}}>Je ontvangt zo een bevestiging per e-mail. We pakken je pakket zo snel mogelijk in.</p>
       </div>
 
       {products.length > 0 && (
         <>
           <div className="of-display" style={{ fontSize: 20, fontWeight: 600, textAlign: "center", marginBottom: 6 }}>Nog iets toevoegen aan je bestelling?</div>
-          <p style={{ color: "#7D7A6F", fontSize: 13, textAlign: "center", marginBottom: 32 }}>Meestal met één klik toe te voegen, zonder opnieuw gegevens in te vullen.</p>
+          <p style={{ color: "#7D7A6F", fontSize: 15, textAlign: "center", marginBottom: 32 , lineHeight: 1.6}}>Meestal met één klik toe te voegen, zonder opnieuw gegevens in te vullen.</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
             {products.map((p) => (
               <div key={p.id} className="of-card" style={{ background: "#FFFFFF", border: "1px solid #E7E0CF", borderRadius: 4, padding: 18, textAlign: "center" }}>
@@ -118,12 +118,12 @@ function SuccessUpsell({ products, onBuy, upsellStatus, onContinue }) {
                   <div style={{ width: "100%", height: 120, background: "#F5F1E6", marginBottom: 12 }} />
                 )}
                 <div className="of-display" style={{ fontSize: 15, marginBottom: 4 }}>{p.name}</div>
-                <div className="of-mono" style={{ fontSize: 14, color: "#1E4638", marginBottom: 12 }}>{currency(p.price)}</div>
+                <div className="of-mono" style={{ fontSize: 16, color: "#1E4638", marginBottom: 12 }}>{currency(p.price)}</div>
                 {upsellStatus[p.id] === "error" && (
-                  <p style={{ color: "#B3261E", fontSize: 11, marginBottom: 8 }}>Kon niet starten. Probeer opnieuw.</p>
+                  <p style={{ color: "#B3261E", fontSize: 16, marginBottom: 8 , lineHeight: 1.6}}>Kon niet starten. Probeer opnieuw.</p>
                 )}
                 {upsellStatus[p.id] === "success" ? (
-                  <div style={{ width: "100%", background: "#F5F1E6", color: "#1E4638", padding: "10px 0", fontSize: 12, borderRadius: 3, fontWeight: 600 }}>
+                  <div style={{ width: "100%", background: "#F5F1E6", color: "#1E4638", padding: "10px 0", fontSize: 16, borderRadius: 3, fontWeight: 600 }}>
                     ✓ Toegevoegd!
                   </div>
                 ) : (
@@ -131,7 +131,7 @@ function SuccessUpsell({ products, onBuy, upsellStatus, onContinue }) {
                     onClick={() => onBuy(p.id)}
                     disabled={upsellStatus[p.id] === "loading" || upsellStatus[p.id] === "redirecting"}
                     className="of-btn of-focus"
-                    style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "10px 0", fontSize: 12, letterSpacing: 0.8, textTransform: "uppercase", cursor: upsellStatus[p.id] ? "default" : "pointer", opacity: upsellStatus[p.id] === "loading" || upsellStatus[p.id] === "redirecting" ? 0.7 : 1, borderRadius: 3 }}
+                    style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "10px 0", fontSize: 16, letterSpacing: 0.8, textTransform: "uppercase", cursor: upsellStatus[p.id] ? "default" : "pointer", opacity: upsellStatus[p.id] === "loading" || upsellStatus[p.id] === "redirecting" ? 0.7 : 1, borderRadius: 3 }}
                   >
                     {upsellStatus[p.id] === "loading" ? "Bezig..." : upsellStatus[p.id] === "redirecting" ? "Doorverwijzen..." : "Direct toevoegen"}
                   </button>
@@ -143,7 +143,7 @@ function SuccessUpsell({ products, onBuy, upsellStatus, onContinue }) {
       )}
 
       <div style={{ textAlign: "center", marginTop: 40 }}>
-        <button onClick={onContinue} className="of-focus" style={{ background: "none", border: "none", color: "#7D8B5A", fontSize: 13, cursor: "pointer" }}>
+        <button onClick={onContinue} className="of-focus" style={{ background: "none", border: "none", color: "#7D8B5A", fontSize: 15, cursor: "pointer" }}>
           Nee bedankt, ga verder naar de winkel →
         </button>
       </div>
@@ -156,7 +156,7 @@ function InfoPage({ page, onBack }) {
   if (!p) return null;
   return (
     <section style={{ maxWidth: 760, margin: "0 auto", padding: "56px 24px 80px" }}>
-      <button onClick={onBack} className="of-focus" style={{ background: "none", border: "none", color: "#7D8B5A", fontSize: 13, cursor: "pointer", marginBottom: 24, padding: 0 }}>
+      <button onClick={onBack} className="of-focus" style={{ background: "none", border: "none", color: "#7D8B5A", fontSize: 15, cursor: "pointer", marginBottom: 24, padding: 0 }}>
         ← Terug naar de winkel
       </button>
       <h1 className="of-display" style={{ fontSize: "clamp(28px, 4vw, 38px)", lineHeight: 1.15, fontWeight: 600, margin: "0 0 16px" }}>{p.title}</h1>
@@ -188,15 +188,15 @@ function ReviewsSection({ reviews }) {
         <div className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Wat klanten zeggen</div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <StarRow rating={Math.round(avg)} size={18} />
-          <span className="of-mono" style={{ fontSize: 13, color: "#7D7A6F" }}>{avg.toFixed(1)} / 5 — {reviews.length} reviews</span>
+          <span className="of-mono" style={{ fontSize: 15, color: "#7D7A6F" }}>{avg.toFixed(1)} / 5 — {reviews.length} reviews</span>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
         {reviews.slice(0, showCount).map((r) => (
           <div key={r.id} style={{ background: "#FFFFFF", border: "1px solid #E7E0CF", borderRadius: 4, padding: 20 }}>
             <StarRow rating={r.rating} />
-            <p style={{ fontSize: 14, color: "#2B2A26", lineHeight: 1.6, margin: "10px 0" }}>{r.body}</p>
-            <div style={{ fontSize: 12, color: "#7D7A6F" }}>
+            <p style={{ fontSize: 16, color: "#2B2A26", lineHeight: 1.6, margin: "10px 0" }}>{r.body}</p>
+            <div style={{ fontSize: 16, color: "#7D7A6F" }}>
               {r.author_name}{r.verified && <span style={{ color: "#1E4638" }}> · geverifieerde aankoop</span>}
             </div>
           </div>
@@ -207,7 +207,7 @@ function ReviewsSection({ reviews }) {
           <button
             onClick={() => setShowCount((c) => c + 9)}
             className="of-btn of-focus"
-            style={{ background: "none", border: "1px solid #1E4638", color: "#1E4638", padding: "12px 28px", fontSize: 12, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+            style={{ background: "none", border: "1px solid #1E4638", color: "#1E4638", padding: "12px 28px", fontSize: 16, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
           >
             Toon meer reviews ({reviews.length - showCount} resterend)
           </button>
@@ -243,7 +243,7 @@ function ReviewFormPage({ orderId, onDone }) {
     return (
       <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
         <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>Bedankt voor je review!</h1>
-        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 24 }}>We bekijken je bericht en plaatsen het snel op de site.</p>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 24 , lineHeight: 1.6}}>We bekijken je bericht en plaatsen het snel op de site.</p>
         <button onClick={onDone} className="of-focus" style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}>Naar de winkel</button>
       </section>
     );
@@ -252,28 +252,28 @@ function ReviewFormPage({ orderId, onDone }) {
   return (
     <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
       <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Laat een review achter</h1>
-      <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 28 }}>Wat vond je van OlivaFix Gold? Jouw ervaring helpt andere kunstgebitdragers.</p>
+      <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 28 , lineHeight: 1.6}}>Wat vond je van OlivaFix Gold? Jouw ervaring helpt andere kunstgebitdragers.</p>
 
-      <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>Score</label>
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>Score</label>
       <div style={{ marginBottom: 20 }}>
         {[1, 2, 3, 4, 5].map((n) => (
           <button key={n} onClick={() => setRating(n)} className="of-focus" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 26, padding: 2, color: n <= rating ? "#B8933D" : "#D8D2BE" }}>★</button>
         ))}
       </div>
 
-      <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>Je naam</label>
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>Je naam</label>
       <input value={name} onChange={(e) => setName(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} placeholder="Bijvoorbeeld: Marie D." />
 
-      <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>Je review</label>
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>Je review</label>
       <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={5} style={{ ...inputStyle, marginBottom: 20, resize: "vertical" }} placeholder="Vertel over je ervaring..." />
 
-      {status === "error" && <p style={{ color: "#B3261E", fontSize: 13, marginBottom: 12 }}>Er ging iets mis. Probeer het opnieuw.</p>}
+      {status === "error" && <p style={{ color: "#B3261E", fontSize: 15, marginBottom: 12 , lineHeight: 1.6}}>Er ging iets mis. Probeer het opnieuw.</p>}
 
       <button
         onClick={submit}
         disabled={status === "sending"}
         className="of-btn of-focus"
-        style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 13, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+        style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
       >
         {status === "sending" ? "Bezig..." : "Review versturen"}
       </button>
@@ -370,8 +370,8 @@ function QuizPage({ onDone }) {
     return (
       <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
         <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>{tier.label}</h1>
-        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 24 }}>{tier.copy}</p>
-        <p style={{ color: "#7D7A6F", fontSize: 13, marginBottom: 24 }}>Check je inbox — je kortingscode is onderweg.</p>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 24 , lineHeight: 1.6}}>{tier.copy}</p>
+        <p style={{ color: "#7D7A6F", fontSize: 15, marginBottom: 24 , lineHeight: 1.6}}>Check je inbox — je kortingscode is onderweg.</p>
         <button onClick={onDone} className="of-focus" style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}>Naar de winkel</button>
       </section>
     );
@@ -383,27 +383,27 @@ function QuizPage({ onDone }) {
         <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Je resultaat is klaar</h1>
         <div style={{ position: "relative", marginBottom: 24 }}>
           <div style={{ filter: "blur(6px)", userSelect: "none", padding: 18, background: "#F5F1E6", borderRadius: 6 }}>
-            <p style={{ fontWeight: 600, marginBottom: 6 }}>{tier.label}</p>
-            <p style={{ fontSize: 14, color: "#7D7A6F" }}>{tier.copy}</p>
+            <p style={{ fontWeight: 600, marginBottom: 6 , lineHeight: 1.6}}>{tier.label}</p>
+            <p style={{ fontSize: 16, color: "#7D7A6F" , lineHeight: 1.6}}>{tier.copy}</p>
           </div>
         </div>
-        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 20 }}>Vul je e-mailadres in om je volledige resultaat en een persoonlijke kortingscode te ontvangen.</p>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 20 , lineHeight: 1.6}}>Vul je e-mailadres in om je volledige resultaat en een persoonlijke kortingscode van 10% te ontvangen.</p>
 
-        <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
+        <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} placeholder="jouw@email.be" />
 
-        <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: "#7D7A6F", marginBottom: 20 }}>
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 16, color: "#7D7A6F", marginBottom: 20 }}>
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
           <span>Ja, stuur me mijn resultaat en houd me op de hoogte van OlivaFix-aanbiedingen per e-mail.</span>
         </label>
 
-        {status === "error" && <p style={{ color: "#B3261E", fontSize: 13, marginBottom: 12 }}>Vul een geldig e-mailadres in en vink het vakje aan.</p>}
+        {status === "error" && <p style={{ color: "#B3261E", fontSize: 15, marginBottom: 12 , lineHeight: 1.6}}>Vul een geldig e-mailadres in en vink het vakje aan.</p>}
 
         <button
           onClick={submit}
           disabled={status === "sending"}
           className="of-btn of-focus"
-          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 13, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
         >
           {status === "sending" ? "Bezig..." : "Toon mijn resultaat"}
         </button>
@@ -416,7 +416,7 @@ function QuizPage({ onDone }) {
       <div style={{ height: 4, borderRadius: 999, background: "#E7E0CF", overflow: "hidden", marginBottom: 8 }}>
         <div style={{ height: "100%", width: `${(step / total) * 100}%`, background: "#B8933D", transition: "width 0.3s ease" }} />
       </div>
-      <p className="of-mono" style={{ fontSize: 11, color: "#7D7A6F", marginBottom: 20 }}>Vraag {step + 1} van {total}</p>
+      <p className="of-mono" style={{ fontSize: 16, color: "#7D7A6F", marginBottom: 20 }}>Vraag {step + 1} van {total}</p>
 
       <h1 className="of-display" style={{ fontSize: 24, fontWeight: 600, marginBottom: 22, lineHeight: 1.3 }}>{QUIZ_QUESTIONS[step].text}</h1>
 
@@ -585,7 +585,7 @@ export default function OlivafixShop() {
           <button onClick={() => setCartOpen(true)} className="of-focus" style={{ background: "none", border: "none", cursor: "pointer", position: "relative", color: "#2B2A26" }} aria-label="Winkelwagen openen">
             <ShoppingBag size={20} strokeWidth={1.5} />
             {count > 0 && (
-              <span style={{ position: "absolute", top: -8, right: -10, background: "#1E4638", color: "#FBF8F1", fontSize: 10, fontWeight: 600, borderRadius: 999, width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center" }}>{count}</span>
+              <span style={{ position: "absolute", top: -9, right: -11, background: "#1E4638", color: "#FBF8F1", fontSize: 13, fontWeight: 600, borderRadius: 999, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>{count}</span>
             )}
           </button>
         </div>
@@ -595,7 +595,7 @@ export default function OlivafixShop() {
               key={l.key}
               onClick={() => setPage(l.key)}
               className="of-focus"
-              style={{ background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap", fontSize: 12, padding: "4px 0", color: page === l.key ? "#1E4638" : "#7D7A6F", fontWeight: page === l.key ? 600 : 400, borderBottom: page === l.key ? "2px solid #1E4638" : "2px solid transparent" }}
+              style={{ background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap", fontSize: 16, padding: "10px 2px", color: page === l.key ? "#1E4638" : "#7D7A6F", fontWeight: page === l.key ? 600 : 400, borderBottom: page === l.key ? "2px solid #1E4638" : "2px solid transparent" }}
             >
               {l.label}
             </button>
@@ -609,13 +609,27 @@ export default function OlivafixShop() {
           className="of-focus"
           style={{ display: "block", background: "#F5F1E6", borderBottom: "1px solid #E7E0CF", padding: "10px 24px", textAlign: "center", textDecoration: "none", color: "#2B2A26", cursor: "pointer" }}
         >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 15 }}>
             <StarRow rating={Math.round(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length)} size={14} />
             <span className="of-mono">{(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)} / 5</span>
             <span style={{ color: "#7D7A6F" }}>— {reviews.length} reviews van klanten</span>
             <ChevronRight size={13} style={{ transform: "rotate(90deg)" }} />
           </span>
         </a>
+      )}
+
+      {page === "home" && (
+        <button
+          onClick={() => { window.history.pushState({}, "", "/quiz"); setPage("quiz"); }}
+          className="of-focus"
+          style={{ display: "block", width: "100%", background: "#1E4638", border: "none", borderBottom: "1px solid #163329", padding: "12px 24px", textAlign: "center", cursor: "pointer" }}
+        >
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 15, color: "#FBF8F1" }}>
+            <strong style={{ color: "#B8933D" }}>Doe de kleefpasta-check</strong>
+            <span>— ontvang 10% korting op je eerste bestelling</span>
+            <ChevronRight size={13} />
+          </span>
+        </button>
       )}
 
       {page === "success" && (
@@ -658,14 +672,14 @@ export default function OlivafixShop() {
       {/* Hero */}
       <section style={{ maxWidth: 1180, margin: "0 auto", padding: "56px 24px 64px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
         <div>
-          <div className="of-mono" style={{ color: "#7D8B5A", fontSize: 12, letterSpacing: 1.5, marginBottom: 16 }}>SWISS MADE · SINDS 2019</div>
+          <div className="of-mono" style={{ color: "#7D8B5A", fontSize: 16, letterSpacing: 1.5, marginBottom: 16 }}>SWISS MADE · SINDS 2019</div>
           <h1 className="of-display" style={{ fontSize: "clamp(34px, 5vw, 52px)", lineHeight: 1.1, fontWeight: 600, margin: "0 0 20px" }}>
             Olijfolie in plaats <br />van petroleum.
           </h1>
           <p style={{ fontSize: 15, color: "#5B584F", lineHeight: 1.7, marginBottom: 28, maxWidth: 420 }}>
             OlivaFix Gold is de hechtcrème voor kunstgebitten met 30% biologische olijfolie — geen zink, geen minerale olie, geen vaseline. Tot 24 uur houvast, klinisch getest.
           </p>
-          <a href="#producten" className="of-btn of-focus" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 28px", fontSize: 13, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>
+          <a href="#producten" className="of-btn of-focus" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 28px", fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>
             Bekijk producten <ChevronRight size={14} />
           </a>
         </div>
@@ -677,17 +691,17 @@ export default function OlivafixShop() {
       {/* Formula bar — signature element grounded in real packaging claims */}
       <section style={{ background: "#1E4638", color: "#FBF8F1", padding: "28px 24px" }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center", justifyContent: "space-between" }}>
-          <div className="of-mono" style={{ fontSize: 12, letterSpacing: 1.5, color: "#C9C4B0" }}>DE FORMULE</div>
+          <div className="of-mono" style={{ fontSize: 16, letterSpacing: 1.5, color: "#C9C4B0" }}>DE FORMULE</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
             {REMOVED.map((r) => (
               <div key={r} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                 <span className="of-mono" style={{ color: "#B8933D", fontSize: 15 }}>0%</span>
-                <span style={{ fontSize: 13, color: "#E9E5D6" }}>{r}</span>
+                <span style={{ fontSize: 15, color: "#E9E5D6" }}>{r}</span>
               </div>
             ))}
             <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
               <span className="of-mono" style={{ color: "#B8933D", fontSize: 15 }}>30%</span>
-              <span style={{ fontSize: 13, color: "#E9E5D6" }}>Biologische olijfolie</span>
+              <span style={{ fontSize: 15, color: "#E9E5D6" }}>Biologische olijfolie</span>
             </div>
           </div>
         </div>
@@ -696,10 +710,10 @@ export default function OlivafixShop() {
       {/* Products */}
       <section id="producten" style={{ maxWidth: 1180, margin: "0 auto", padding: "72px 24px" }}>
         <div className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Kies je verpakking</div>
-        <p style={{ color: "#7D7A6F", fontSize: 14, marginBottom: 36 }}>Alle varianten bevatten dezelfde formule — enkel de hoeveelheid verschilt.</p>
-        {loadingProducts && <p style={{ color: "#7D7A6F", fontSize: 14 }}>Producten laden...</p>}
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 36 , lineHeight: 1.6}}>Alle varianten bevatten dezelfde formule — enkel de hoeveelheid verschilt.</p>
+        {loadingProducts && <p style={{ color: "#7D7A6F", fontSize: 16 , lineHeight: 1.6}}>Producten laden...</p>}
         {!loadingProducts && products.length === 0 && (
-          <p style={{ color: "#7D7A6F", fontSize: 14 }}>Geen producten gevonden. Voeg er een toe via /admin.html.</p>
+          <p style={{ color: "#7D7A6F", fontSize: 16 , lineHeight: 1.6}}>Geen producten gevonden. Voeg er een toe via /admin.html.</p>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 28 }}>
           {products.map((p) => (
@@ -709,16 +723,16 @@ export default function OlivafixShop() {
               </div>
               <div style={{ padding: 22, display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
                 <div className="of-display" style={{ fontSize: 18, fontWeight: 600 }}>{p.name}</div>
-                <div style={{ fontSize: 13, color: "#7D7A6F" }}>{p.variant}</div>
-                <p style={{ fontSize: 13, color: "#5B584F", lineHeight: 1.5, margin: "4px 0 0" }}>{p.desc}</p>
+                <div style={{ fontSize: 15, color: "#7D7A6F" }}>{p.variant}</div>
+                <p style={{ fontSize: 15, color: "#5B584F", lineHeight: 1.5, margin: "4px 0 0" }}>{p.desc}</p>
                 <div style={{ marginTop: "auto", paddingTop: 14, display: "flex", alignItems: "baseline", gap: 8 }}>
                   <span className="of-mono" style={{ fontSize: 19, fontWeight: 500 }}>{currency(p.price)}</span>
-                  {p.compareAt && <span className="of-mono" style={{ fontSize: 12, color: "#A6A18E", textDecoration: "line-through" }}>{currency(p.compareAt)}</span>}
+                  {p.compareAt && <span className="of-mono" style={{ fontSize: 16, color: "#A6A18E", textDecoration: "line-through" }}>{currency(p.compareAt)}</span>}
                 </div>
                 <button
                   onClick={() => addToCart(p.id)}
                   className="of-btn of-focus"
-                  style={{ marginTop: 6, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 0", fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+                  style={{ marginTop: 6, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 0", fontSize: 16, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "#163329")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "#1E4638")}
                 >
@@ -735,19 +749,19 @@ export default function OlivafixShop() {
         <div style={{ maxWidth: 1180, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 32, justifyContent: "space-around", textAlign: "center" }}>
           <div>
             <div className="of-display" style={{ fontSize: 22, color: "#1E4638" }}>24h</div>
-            <div style={{ fontSize: 12, color: "#7D7A6F", marginTop: 4 }}>Houvast bovengebit</div>
+            <div style={{ fontSize: 16, color: "#7D7A6F", marginTop: 4 }}>Houvast bovengebit</div>
           </div>
           <div>
             <div className="of-display" style={{ fontSize: 22, color: "#1E4638" }}>300+</div>
-            <div style={{ fontSize: 12, color: "#7D7A6F", marginTop: 4 }}>Getest in 8 landen</div>
+            <div style={{ fontSize: 16, color: "#7D7A6F", marginTop: 4 }}>Getest in 8 landen</div>
           </div>
           <div>
             <div className="of-display" style={{ fontSize: 22, color: "#1E4638" }}>30%</div>
-            <div style={{ fontSize: 12, color: "#7D7A6F", marginTop: 4 }}>Biologische olijfolie</div>
+            <div style={{ fontSize: 16, color: "#7D7A6F", marginTop: 4 }}>Biologische olijfolie</div>
           </div>
           <div>
             <div className="of-display" style={{ fontSize: 22, color: "#1E4638" }}>0%</div>
-            <div style={{ fontSize: 12, color: "#7D7A6F", marginTop: 4 }}>Zink & petroleum</div>
+            <div style={{ fontSize: 16, color: "#7D7A6F", marginTop: 4 }}>Zink & petroleum</div>
           </div>
         </div>
       </section>
@@ -755,7 +769,7 @@ export default function OlivafixShop() {
       <ReviewsSection reviews={reviews} />
       </>}
 
-      <footer style={{ padding: "40px 24px", textAlign: "center", color: "#A6A18E", fontSize: 12 }}>
+      <footer style={{ padding: "40px 24px", textAlign: "center", color: "#A6A18E", fontSize: 16 }}>
         OlivaFix Gold — een product van Bonyf. Swiss made.
       </footer>
 
@@ -769,7 +783,7 @@ export default function OlivafixShop() {
               <button onClick={() => setCartOpen(false)} className="of-focus" style={{ background: "none", border: "none", color: "#2B2A26", cursor: "pointer" }}><X size={20} /></button>
             </div>
             {cartItems.length === 0 ? (
-              <p style={{ color: "#A6A18E", fontSize: 14 }}>Nog niets toegevoegd.</p>
+              <p style={{ color: "#A6A18E", fontSize: 16 , lineHeight: 1.6}}>Nog niets toegevoegd.</p>
             ) : (
               <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 18 }}>
                 {cartItems.map((i) => (
@@ -777,12 +791,12 @@ export default function OlivafixShop() {
                     <img src={i.image} alt={i.name} style={{ width: 56, height: 56, objectFit: "contain", background: "#F5F1E6", borderRadius: 4, flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <div className="of-display" style={{ fontSize: 14 }}>{i.name}</div>
-                        <div className="of-mono" style={{ fontSize: 13 }}>{currency(i.price * i.qty)}</div>
+                        <div className="of-display" style={{ fontSize: 16 }}>{i.name}</div>
+                        <div className="of-mono" style={{ fontSize: 15 }}>{currency(i.price * i.qty)}</div>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
                         <button onClick={() => changeQty(i.id, -1)} className="of-focus" style={{ background: "none", border: "1px solid #D8D2BE", color: "#2B2A26", cursor: "pointer", padding: 2 }}><Minus size={12} /></button>
-                        <span className="of-mono" style={{ fontSize: 12 }}>{i.qty}</span>
+                        <span className="of-mono" style={{ fontSize: 16 }}>{i.qty}</span>
                         <button onClick={() => changeQty(i.id, 1)} className="of-focus" style={{ background: "none", border: "1px solid #D8D2BE", color: "#2B2A26", cursor: "pointer", padding: 2 }}><Plus size={12} /></button>
                       </div>
                     </div>
@@ -793,17 +807,17 @@ export default function OlivafixShop() {
             {cartItems.length > 0 && (
               <div style={{ borderTop: "1px solid #E7E0CF", padding: "20px 0 24px", flexShrink: 0, background: "#FBF8F1" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-                  <span style={{ fontSize: 13, color: "#7D7A6F" }}>Subtotaal</span>
+                  <span style={{ fontSize: 15, color: "#7D7A6F" }}>Subtotaal</span>
                   <span className="of-mono" style={{ fontSize: 16 }}>{currency(total)}</span>
                 </div>
                 {checkoutError && (
-                  <p style={{ color: "#B3261E", fontSize: 12, marginBottom: 10 }}>{checkoutError}</p>
+                  <p style={{ color: "#B3261E", fontSize: 16, marginBottom: 10 , lineHeight: 1.6}}>{checkoutError}</p>
                 )}
                 <button
                   onClick={startCheckout}
                   disabled={checkoutLoading}
                   className="of-btn of-focus"
-                  style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 13, letterSpacing: 1.2, textTransform: "uppercase", cursor: checkoutLoading ? "default" : "pointer", opacity: checkoutLoading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 3 }}
+                  style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 15, letterSpacing: 1.2, textTransform: "uppercase", cursor: checkoutLoading ? "default" : "pointer", opacity: checkoutLoading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 3 }}
                 >
                   {checkoutLoading ? "Bezig..." : <>Afrekenen <ChevronRight size={14} /></>}
                 </button>
@@ -819,5 +833,5 @@ export default function OlivafixShop() {
 
 const inputStyle = {
   background: "#FFFFFF", border: "1px solid #D8D2BE", color: "#2B2A26",
-  padding: "12px 14px", fontSize: 13, outline: "none", width: "100%", boxSizing: "border-box", borderRadius: 3,
+  padding: "12px 14px", fontSize: 15, outline: "none", width: "100%", boxSizing: "border-box", borderRadius: 3,
 };
