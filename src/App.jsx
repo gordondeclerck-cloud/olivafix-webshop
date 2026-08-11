@@ -436,6 +436,74 @@ function QuizPage({ onDone }) {
   );
 }
 
+function QuizPopup({ onOpenQuiz }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("of_quiz_popup_seen") === "1";
+    } catch {}
+    if (seen) return;
+    const timer = setTimeout(() => setVisible(true), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const dismiss = () => {
+    setVisible(false);
+    try { sessionStorage.setItem("of_quiz_popup_seen", "1"); } catch {}
+  };
+
+  const openQuiz = () => {
+    dismiss();
+    onOpenQuiz();
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-label="Kleefpasta-check"
+      style={{ position: "fixed", inset: 0, background: "rgba(43,42,38,0.45)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+      onClick={dismiss}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ background: "#FBF8F1", borderRadius: 8, maxWidth: 360, width: "100%", padding: "32px 24px 24px", textAlign: "center", position: "relative", boxShadow: "0 20px 50px rgba(27,61,47,0.25)" }}
+      >
+        <button
+          onClick={dismiss}
+          aria-label="Sluiten"
+          className="of-focus"
+          style={{ position: "absolute", top: 10, right: 10, background: "none", border: "none", cursor: "pointer", color: "#7D7A6F", padding: 8 }}
+        >
+          <X size={20} />
+        </button>
+        <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 10 }}>10% KORTING</div>
+        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>Doe de kleefpasta-check</h2>
+        <p style={{ color: "#7D7A6F", fontSize: 15, lineHeight: 1.5, marginBottom: 22 }}>
+          Een paar korte vragen over je huidige kleefpasta — en 10% korting op je eerste bestelling.
+        </p>
+        <button
+          onClick={openQuiz}
+          className="of-btn of-focus"
+          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 14, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, marginBottom: 10 }}
+        >
+          Start de check
+        </button>
+        <button
+          onClick={dismiss}
+          className="of-focus"
+          style={{ background: "none", border: "none", color: "#7D7A6F", fontSize: 13, cursor: "pointer", padding: 6 }}
+        >
+          Nee, bedankt
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const NAV_LINKS = [
   { key: "about", label: "Over OlivaFix Gold" },
   { key: "science", label: "Wetenschappelijke info" },
@@ -609,28 +677,16 @@ export default function OlivafixShop() {
           className="of-focus"
           style={{ display: "block", background: "#F5F1E6", borderBottom: "1px solid #E7E0CF", padding: "10px 24px", textAlign: "center", textDecoration: "none", color: "#2B2A26", cursor: "pointer" }}
         >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 15 }}>
-            <StarRow rating={Math.round(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length)} size={14} />
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, flexWrap: "wrap", justifyContent: "center" }}>
+            <StarRow rating={Math.round(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length)} size={13} />
             <span className="of-mono">{(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)} / 5</span>
             <span style={{ color: "#7D7A6F" }}>— {reviews.length} reviews van klanten</span>
-            <ChevronRight size={13} style={{ transform: "rotate(90deg)" }} />
+            <ChevronRight size={12} style={{ transform: "rotate(90deg)" }} />
           </span>
         </a>
       )}
 
-      {page === "home" && (
-        <button
-          onClick={() => { window.history.pushState({}, "", "/quiz"); setPage("quiz"); }}
-          className="of-focus"
-          style={{ display: "block", width: "100%", background: "#1E4638", border: "none", borderBottom: "1px solid #163329", padding: "12px 24px", textAlign: "center", cursor: "pointer" }}
-        >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 15, color: "#FBF8F1" }}>
-            <strong style={{ color: "#B8933D" }}>Doe de kleefpasta-check</strong>
-            <span>— ontvang 10% korting op je eerste bestelling</span>
-            <ChevronRight size={13} />
-          </span>
-        </button>
-      )}
+      {page === "home" && <QuizPopup onOpenQuiz={() => { window.history.pushState({}, "", "/quiz"); setPage("quiz"); }} />}
 
       {page === "success" && (
         <SuccessUpsell
