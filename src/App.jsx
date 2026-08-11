@@ -281,73 +281,29 @@ function ReviewFormPage({ orderId, onDone }) {
   );
 }
 
-const QUIZ_QUESTIONS = [
+const OLIVAFIX_FACTS = [
   {
-    id: "brand",
-    text: "Welke kleefpasta gebruik je op dit moment?",
-    options: ["Een bekend supermarktmerk", "Een apotheekmerk", "Wisselend, ik ben nog op zoek", "Nog geen vast merk"],
+    title: "Wist je dit?",
+    text: "Veel klassieke kleefpasta's gebruiken zink en petroleum-derivaten als bindmiddel. OlivaFix Gold gebruikt in plaats daarvan biologische olijfolie.",
   },
   {
-    id: "reapply",
-    text: "Hoe vaak moet je tijdens de dag bijsmeren?",
-    options: ["Nooit", "1 keer", "2 tot 3 keer", "Meer dan 3 keer"],
+    title: "Van oudsher",
+    text: "Olijfolie wordt al eeuwenlang gebruikt om mondweefsel te verzachten en te beschermen — lang voordat er synthetische kleefpasta's bestonden.",
   },
   {
-    id: "taste",
-    text: "Hinder de smaak of geur van je kleefpasta je weleens?",
-    options: ["Ja, vaak", "Soms", "Zelden", "Nooit opgemerkt"],
-  },
-  {
-    id: "moment",
-    text: "Had je ooit een ongemakkelijk moment door je kleefpasta — tijdens eten, lachen of praten?",
-    options: ["Ja, regelmatig", "Af en toe", "Zelden", "Nooit"],
-  },
-  {
-    id: "priority",
-    text: "Wat vind je het belangrijkst in een kleefpasta?",
-    options: ["Houdt de hele dag", "Natuurlijke ingrediënten", "Neutrale smaak en geur", "Prijs"],
+    title: "Wat klanten zeggen",
+    text: "Meerdere OlivaFix-klanten melden dat ze merkbaar minder vaak moeten bijsmeren dan met hun vorige kleefpasta. Lees hun ervaringen verderop bij de reviews.",
   },
 ];
 
-function computeQuizTier(answers) {
-  const values = Object.values(answers);
-  const score = values.reduce((sum, i) => sum + i, 0);
-  const ratio = score / (QUIZ_QUESTIONS.length * 3);
-
-  if (ratio >= 0.6) {
-    return {
-      label: "Hoog tijd voor een frisse start",
-      copy: "Je merkt duidelijk hinder van je huidige kleefpasta — vaak bijsmeren, een vieze nasmaak, of net dat ene ongemakkelijke moment. OlivaFix Gold is gemaakt met olijfolie in plaats van synthetische chemicaliën: neutrale smaak, en houvast die de hele dag meegaat.",
-    };
-  }
-  if (ratio >= 0.3) {
-    return {
-      label: "Ruimte voor verbetering",
-      copy: "Je huidige kleefpasta doet zijn werk, maar niet zonder kleine ergernissen. Veel van onze klanten kwamen net om die reden over: minder bijsmeren, en geen chemische bijsmaak meer dankzij de olijfolie-basis van OlivaFix Gold.",
-    };
-  }
-  return {
-    label: "Je zit al best goed — maar dit kan nog beter",
-    copy: "Je huidige kleefpasta stoort je weinig, knap. Toch kiezen steeds meer mensen bewust voor een natuurlijke basis in plaats van synthetische chemicaliën. OlivaFix Gold geeft dezelfde houvast, met olijfolie in plaats van chemicaliën.",
-  };
-}
-
-function QuizPage({ onDone }) {
+function FactsPage({ onDone }) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState({});
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState(null); // null | "sending" | "sent" | "error"
 
-  const total = QUIZ_QUESTIONS.length;
+  const total = OLIVAFIX_FACTS.length;
   const isDone = step >= total;
-  const tier = isDone ? computeQuizTier(answers) : null;
-
-  const selectAnswer = (optionIndex) => {
-    const q = QUIZ_QUESTIONS[step];
-    setAnswers((prev) => ({ ...prev, [q.id]: optionIndex }));
-    setStep((s) => s + 1);
-  };
 
   const submit = async () => {
     if (!email.includes("@")) { setStatus("error"); return; }
@@ -357,7 +313,7 @@ function QuizPage({ onDone }) {
       const res = await fetch(`${BACKEND_URL}/api/quiz-lead`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, answers, tier: tier.label, marketingConsent: consent }),
+        body: JSON.stringify({ email, answers: {}, tier: "Weetjes doorlopen", marketingConsent: consent }),
       });
       if (!res.ok) throw new Error();
       setStatus("sent");
@@ -369,9 +325,8 @@ function QuizPage({ onDone }) {
   if (status === "sent") {
     return (
       <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
-        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>{tier.label}</h1>
-        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 24 , lineHeight: 1.6}}>{tier.copy}</p>
-        <p style={{ color: "#7D7A6F", fontSize: 15, marginBottom: 24 , lineHeight: 1.6}}>Check je inbox — je kortingscode is onderweg.</p>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>Bedankt!</h1>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 24, lineHeight: 1.6 }}>Check je inbox — je kortingscode van 10% is onderweg.</p>
         <button onClick={onDone} className="of-focus" style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}>Naar de winkel</button>
       </section>
     );
@@ -380,58 +335,52 @@ function QuizPage({ onDone }) {
   if (isDone) {
     return (
       <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
-        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Je resultaat is klaar</h1>
-        <div style={{ position: "relative", marginBottom: 24 }}>
-          <div style={{ filter: "blur(6px)", userSelect: "none", padding: 18, background: "#F5F1E6", borderRadius: 6 }}>
-            <p style={{ fontWeight: 600, marginBottom: 6 , lineHeight: 1.6}}>{tier.label}</p>
-            <p style={{ fontSize: 16, color: "#7D7A6F" , lineHeight: 1.6}}>{tier.copy}</p>
-          </div>
-        </div>
-        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 20 , lineHeight: 1.6}}>Vul je e-mailadres in om je volledige resultaat en een persoonlijke kortingscode van 10% te ontvangen.</p>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Krijg 10% korting</h1>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 20, lineHeight: 1.6 }}>Je hebt alle weetjes doorlopen. Vul je e-mailadres in om je kortingscode te ontvangen.</p>
 
-        <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
+        <label style={{ display: "block", fontSize: 14, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} placeholder="jouw@email.be" />
 
-        <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 16, color: "#7D7A6F", marginBottom: 20 }}>
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, color: "#7D7A6F", marginBottom: 20 }}>
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
-          <span>Ja, stuur me mijn resultaat en houd me op de hoogte van OlivaFix-aanbiedingen per e-mail.</span>
+          <span>Ja, stuur me mijn kortingscode en houd me op de hoogte van OlivaFix-aanbiedingen per e-mail.</span>
         </label>
 
-        {status === "error" && <p style={{ color: "#B3261E", fontSize: 15, marginBottom: 12 , lineHeight: 1.6}}>Vul een geldig e-mailadres in en vink het vakje aan.</p>}
+        {status === "error" && <p style={{ color: "#B3261E", fontSize: 14, marginBottom: 12 }}>Vul een geldig e-mailadres in en vink het vakje aan.</p>}
 
         <button
           onClick={submit}
           disabled={status === "sending"}
           className="of-btn of-focus"
-          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 14, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
         >
-          {status === "sending" ? "Bezig..." : "Toon mijn resultaat"}
+          {status === "sending" ? "Bezig..." : "Ontvang mijn korting"}
         </button>
       </section>
     );
   }
 
+  const fact = OLIVAFIX_FACTS[step];
+
   return (
     <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
       <div style={{ height: 4, borderRadius: 999, background: "#E7E0CF", overflow: "hidden", marginBottom: 8 }}>
-        <div style={{ height: "100%", width: `${(step / total) * 100}%`, background: "#B8933D", transition: "width 0.3s ease" }} />
+        <div style={{ height: "100%", width: `${((step + 1) / total) * 100}%`, background: "#B8933D", transition: "width 0.3s ease" }} />
       </div>
-      <p className="of-mono" style={{ fontSize: 16, color: "#7D7A6F", marginBottom: 20 }}>Vraag {step + 1} van {total}</p>
+      <p className="of-mono" style={{ fontSize: 13, color: "#7D7A6F", marginBottom: 24 }}>Weetje {step + 1} van {total}</p>
 
-      <h1 className="of-display" style={{ fontSize: 24, fontWeight: 600, marginBottom: 22, lineHeight: 1.3 }}>{QUIZ_QUESTIONS[step].text}</h1>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {QUIZ_QUESTIONS[step].options.map((opt) => (
-          <button
-            key={opt}
-            onClick={() => selectAnswer(QUIZ_QUESTIONS[step].options.indexOf(opt))}
-            className="of-focus"
-            style={{ textAlign: "left", padding: "14px 16px", borderRadius: 3, border: "1px solid #D8D2BE", background: "#FFFFFF", fontSize: 15, color: "#2B2A26", cursor: "pointer" }}
-          >
-            {opt}
-          </button>
-        ))}
+      <div style={{ background: "#F5F1E6", borderRadius: 8, padding: "32px 24px", marginBottom: 28, textAlign: "center" }}>
+        <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 12 }}>{fact.title.toUpperCase()}</div>
+        <p className="of-display" style={{ fontSize: 20, fontWeight: 500, lineHeight: 1.5, color: "#2B2A26" }}>{fact.text}</p>
       </div>
+
+      <button
+        onClick={() => setStep((s) => s + 1)}
+        className="of-btn of-focus"
+        style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 14, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+      >
+        {step + 1 < total ? "Volgend weetje" : "Krijg mijn korting"}
+      </button>
     </section>
   );
 }
@@ -454,7 +403,7 @@ function QuizPopup({ onOpenQuiz }) {
     try { sessionStorage.setItem("of_quiz_popup_seen", "1"); } catch {}
   };
 
-  const openQuiz = () => {
+  const openFacts = () => {
     dismiss();
     onOpenQuiz();
   };
@@ -464,7 +413,7 @@ function QuizPopup({ onOpenQuiz }) {
   return (
     <div
       role="dialog"
-      aria-label="Kleefpasta-check"
+      aria-label="Weetjes over OlivaFix Gold"
       style={{ position: "fixed", inset: 0, background: "rgba(43,42,38,0.45)", zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
       onClick={dismiss}
     >
@@ -481,16 +430,16 @@ function QuizPopup({ onOpenQuiz }) {
           <X size={20} />
         </button>
         <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 10 }}>10% KORTING</div>
-        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>Doe de kleefpasta-check</h2>
+        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>3 weetjes over OlivaFix Gold</h2>
         <p style={{ color: "#7D7A6F", fontSize: 15, lineHeight: 1.5, marginBottom: 22 }}>
-          Een paar korte vragen over je huidige kleefpasta — en 10% korting op je eerste bestelling.
+          Ontdek in 3 korte weetjes wat OlivaFix Gold anders maakt — en ontvang 10% korting op je eerste bestelling.
         </p>
         <button
-          onClick={openQuiz}
+          onClick={openFacts}
           className="of-btn of-focus"
           style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 14, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, marginBottom: 10 }}
         >
-          Start de check
+          Bekijk de weetjes
         </button>
         <button
           onClick={dismiss}
@@ -705,7 +654,7 @@ export default function OlivafixShop() {
       )}
 
       {page === "quiz" && (
-        <QuizPage onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }} />
+        <FactsPage onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }} />
       )}
 
       {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && <InfoPage page={page} onBack={() => setPage("home")} />}
