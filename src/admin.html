@@ -57,6 +57,10 @@
   <h1>Goedgekeurde reviews</h1>
   <div id="approvedReviewList"></div>
 
+  <h1>Weetjes-leads</h1>
+  <div class="card" id="leadStats"></div>
+  <div id="leadList"></div>
+
   <h1>Producten beheren</h1>
   <div id="productList"></div>
 
@@ -110,6 +114,7 @@ async function loadProducts() {
     renderProducts(products);
     loadOrders();
     loadReviews();
+    loadQuizLeads();
   } catch (err) {
     document.getElementById("loginError").textContent = "Kon geen verbinding maken. Klopt de backend-URL?";
   }
@@ -259,6 +264,53 @@ async function createProduct() {
   } catch (err) {
     errorEl.textContent = "Fout: " + err.message;
   }
+}
+
+async function loadQuizLeads() {
+  try {
+    const res = await fetch(`${backendUrl}/api/admin/quiz-leads`, {
+      headers: { "x-admin-password": password },
+    });
+    const data = await res.json();
+    if (!res.ok || !data.leads) throw new Error(data.error || `Serverfout (${res.status})`);
+    renderLeadStats(data.stats);
+    renderLeads(data.leads);
+  } catch (err) {
+    document.getElementById("leadStats").innerHTML = "";
+    document.getElementById("leadList").innerHTML = `<p class="error">Kon leads niet laden: ${err.message}</p>`;
+  }
+}
+
+function renderLeadStats(stats) {
+  document.getElementById("leadStats").innerHTML = `
+    <div class="row" style="text-align:center">
+      <div style="flex:1"><strong style="font-size:20px">${stats.total_leads}</strong><br/><span style="font-size:12px;color:#7D7A6F">Leads</span></div>
+      <div style="flex:1"><strong style="font-size:20px">${stats.purchased}</strong><br/><span style="font-size:12px;color:#7D7A6F">Kochten nadien</span></div>
+      <div style="flex:1"><strong style="font-size:20px">${stats.conversion_rate}%</strong><br/><span style="font-size:12px;color:#7D7A6F">Conversie</span></div>
+    </div>
+  `;
+}
+
+function renderLeads(leads) {
+  const el = document.getElementById("leadList");
+  if (leads.length === 0) {
+    el.innerHTML = `<p style="color:#7D7A6F;font-size:13px">Nog geen leads.</p>`;
+    return;
+  }
+  el.innerHTML = "";
+  leads.forEach((l) => {
+    const date = new Date(l.created_at).toLocaleDateString("nl-BE", { day: "numeric", month: "short", year: "numeric" });
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="row">
+        <strong>${l.email}</strong>
+        <span style="font-size:12px;color:${l.purchased ? "#1E4638" : "#7D7A6F"}">${l.purchased ? "✓ Kocht" : "Nog geen aankoop"}</span>
+      </div>
+      <p style="font-size:12px;color:#7D7A6F;margin:6px 0">${date} · ${l.marketing_consent ? "marketing OK" : "geen marketing-toestemming"}</p>
+    `;
+    el.appendChild(div);
+  });
 }
 
 async function loadReviews() {
