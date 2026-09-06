@@ -573,6 +573,9 @@ export default function OlivafixShop() {
       return next;
     });
 
+  const [shippingCountry, setShippingCountry] = useState("BE");
+  const SHIP_COST_ESTIMATES = { BE: 5.4, NL: 16.5, FR: 16.5, DE: 16.5, LU: 16.5, CH: 34.6 };
+
   const startCheckout = async () => {
     setCheckoutError(null);
     setCheckoutLoading(true);
@@ -581,7 +584,7 @@ export default function OlivafixShop() {
       const res = await fetch(`${BACKEND_URL}/api/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items, shippingCountry }),
       });
       const data = await res.json();
       if (data.url) {
@@ -831,9 +834,22 @@ export default function OlivafixShop() {
             )}
             {cartItems.length > 0 && (
               <div style={{ borderTop: "1px solid #E7E0CF", padding: "20px 0 24px", flexShrink: 0, background: "#FBF8F1" }}>
+                <label style={{ display: "block", fontSize: 12, color: "#7D7A6F", marginBottom: 4 }}>Land van levering</label>
+                <select
+                  value={shippingCountry}
+                  onChange={(e) => setShippingCountry(e.target.value)}
+                  style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #D8D2BE", borderRadius: 3, background: "#FFFFFF", color: "#2B2A26", marginBottom: 14 }}
+                >
+                  <option value="BE">België</option>
+                  <option value="NL">Nederland</option>
+                  <option value="FR">Frankrijk</option>
+                  <option value="DE">Duitsland</option>
+                  <option value="LU">Luxemburg</option>
+                  <option value="CH">Zwitserland</option>
+                </select>
                 {total < 40 ? (
                   <div style={{ background: "#F1EAD3", border: "1px solid #D8C99A", borderRadius: 3, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#5B4E22" }}>
-                    Verzendkosten vanaf <strong>€5,40</strong> (bpost). Nog <strong>{currency(40 - total)}</strong> tot <strong>gratis</strong> verzending — voeg de 3-pack toe en bespaar!
+                    Verzendkosten vanaf <strong>€{SHIP_COST_ESTIMATES[shippingCountry].toFixed(2).replace(".", ",")}</strong> (bpost). Nog <strong>{currency(40 - total)}</strong> tot <strong>gratis</strong> verzending — voeg de 3-pack toe en bespaar!
                   </div>
                 ) : (
                   <div style={{ background: "#E5EEE1", border: "1px solid #B9D4AE", borderRadius: 3, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#1E4638", fontWeight: 600 }}>
