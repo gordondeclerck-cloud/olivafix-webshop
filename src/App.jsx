@@ -602,8 +602,8 @@ export default function OlivafixShop() {
     <div style={{ background: "#FBF8F1", color: "#2B2A26", minHeight: "100vh", fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         ${FONT_IMPORT}
-        .of-display { font-family: 'Lora', serif; }
-        .of-mono { font-family: 'JetBrains Mono', monospace; }
+        ..of-display { font-family: 'Quicksand', sans-serif; }
+.of-mono { font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 0.2px; }
         .of-btn { transition: all 0.2s ease; }
         .of-card { transition: box-shadow 0.25s ease, transform 0.25s ease; }
         .of-card:hover { box-shadow: 0 12px 28px rgba(30,70,56,0.10); transform: translateY(-2px); }
