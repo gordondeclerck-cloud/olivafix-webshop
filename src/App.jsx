@@ -4,8 +4,7 @@ import { ShoppingBag, X, Plus, Minus, ChevronRight, Check, Leaf } from "lucide-r
 // URL van je live backend op Railway
 const BACKEND_URL = "https://proactive-happiness-production.up.railway.app";
 
-const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');`;
-
+const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');`;
 // Ingebouwde foto's voor de startproducten (base64, zodat geen los bestand nodig is).
 // Nieuwe producten die je later toevoegt via /admin.html gebruiken een externe foto-URL.
 const IMAGE_MAP = {
