@@ -486,6 +486,172 @@ function FactsPage({ onDone, onNavigate }) {
   );
 }
 
+const PERSONA_QUESTIONS = [
+  {
+    key: "wear",
+    question: "Hoeveel uur per dag draag je je kunstgebit?",
+    options: [
+      { label: "De hele dag, van 's ochtends tot 's avonds", value: "allday" },
+      { label: "Vooral tijdens het eten en onder mensen", value: "partial" },
+      { label: "Ook 's nachts, ik wil er niet aan hoeven denken", value: "night" },
+    ],
+  },
+  {
+    key: "priority",
+    question: "Wat vind je het belangrijkst aan een hechtcrème?",
+    options: [
+      { label: "Dat ze geen synthetische ingrediënten bevat", value: "natural" },
+      { label: "Maximale houvast, de hele dag door", value: "hold" },
+      { label: "Dat ik niet steeds hoef bij te smeren", value: "convenience" },
+    ],
+  },
+  {
+    key: "frequency",
+    question: "Hoe vaak moet je je huidige crème bijsmeren?",
+    options: [
+      { label: "Bijna nooit, één keer is genoeg", value: "rare" },
+      { label: "Soms, zeker bij langere dagen", value: "sometimes" },
+      { label: "Vaak — dat is precies waarom ik hier ben", value: "often" },
+    ],
+  },
+];
+
+const PERSONA_RESULTS = {
+  natural: {
+    title: "De Bewuste Kiezer",
+    text: "Je wil gewoon weten wat er in je mond zit. OlivaFix Gold is opgebouwd rond 30% biologische olijfolie, zonder zink, minerale olie of vaseline — precies wat jij zoekt.",
+    productId: "olv-1x75",
+    productLabel: "Start met 1×75g",
+  },
+  hold: {
+    title: "De Actieve Drager",
+    text: "Jij bent de hele dag onderweg en wil daar niet steeds aan hoeven denken. OlivaFix Gold houdt tot 24 uur vast, klinisch getest tegen een toonaangevend merk.",
+    productId: "olv-3x75",
+    productLabel: "Kies het 3-pack",
+  },
+  convenience: {
+    title: "De Slimme Voorraadhouder",
+    text: "Bijsmeren tijdens de dag is precies wat je wil vermijden. Met het 6-pack heb je voor maanden voorraad in huis, zonder dat je eraan hoeft te denken.",
+    productId: "olv-6x75",
+    productLabel: "Kies het 6-pack",
+  },
+};
+
+function pickPersona(answers) {
+  if (answers.priority === "natural") return PERSONA_RESULTS.natural;
+  if (answers.priority === "convenience" || answers.frequency === "often") return PERSONA_RESULTS.convenience;
+  return PERSONA_RESULTS.hold;
+}
+
+function PersonaQuiz({ onAddAndGo }) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [status, setStatus] = useState(null); // null | "sending" | "sent" | "error"
+
+  const total = PERSONA_QUESTIONS.length;
+  const isDone = step >= total;
+  const result = isDone ? pickPersona(answers) : null;
+
+  const choose = (key, value) => {
+    setAnswers((a) => ({ ...a, [key]: value }));
+    setStep((s) => s + 1);
+  };
+
+  const submit = async () => {
+    if (!email.includes("@")) { setStatus("error"); return; }
+    if (!consent) { setStatus("error"); return; }
+    setStatus("sending");
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/quiz-lead`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, answers, tier: result.title, marketingConsent: consent }),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "sent") {
+    return (
+      <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>Bedankt!</h1>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 24, lineHeight: 1.6 }}>Check je inbox — je kortingscode van 10% is onderweg.</p>
+        <button
+          onClick={() => onAddAndGo(result.productId)}
+          className="of-btn of-focus"
+          style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}
+        >
+          {result.productLabel} en naar winkelmand
+        </button>
+      </section>
+    );
+  }
+
+  if (isDone) {
+    return (
+      <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+        <div style={{ background: "#F5F1E6", borderRadius: 8, padding: "32px 24px", marginBottom: 28, textAlign: "center" }}>
+          <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 12 }}>JOUW RESULTAAT</div>
+          <h2 className="of-display" style={{ fontSize: 24, fontWeight: 600, marginBottom: 12, color: "#2B2A26" }}>{result.title}</h2>
+          <p style={{ fontSize: 16, lineHeight: 1.6, color: "#2B2A26" }}>{result.text}</p>
+        </div>
+
+        <p style={{ color: "#7D7A6F", fontSize: 15, marginBottom: 16, lineHeight: 1.6 }}>Vul je e-mailadres in en ontvang meteen 10% korting op je bestelling.</p>
+
+        <label style={{ display: "block", fontSize: 14, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 16 }} placeholder="jouw@email.be" />
+
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, color: "#7D7A6F", marginBottom: 20 }}>
+          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
+          <span>Ja, stuur me mijn kortingscode en houd me op de hoogte van OlivaFix-aanbiedingen per e-mail.</span>
+        </label>
+
+        {status === "error" && <p style={{ color: "#B3261E", fontSize: 14, marginBottom: 12 }}>Vul een geldig e-mailadres in en vink het vakje aan.</p>}
+
+        <button
+          onClick={submit}
+          disabled={status === "sending"}
+          className="of-btn of-focus"
+          style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 14, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+        >
+          {status === "sending" ? "Bezig..." : "Ontvang mijn korting"}
+        </button>
+      </section>
+    );
+  }
+
+  const q = PERSONA_QUESTIONS[step];
+
+  return (
+    <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <div style={{ height: 4, borderRadius: 999, background: "#E7E0CF", overflow: "hidden", marginBottom: 8 }}>
+        <div style={{ height: "100%", width: `${((step + 1) / total) * 100}%`, background: "#B8933D", transition: "width 0.3s ease" }} />
+      </div>
+      <p className="of-mono" style={{ fontSize: 13, color: "#7D7A6F", marginBottom: 24 }}>Vraag {step + 1} van {total}</p>
+
+      <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 24, lineHeight: 1.35, color: "#2B2A26" }}>{q.question}</h2>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {q.options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => choose(q.key, opt.value)}
+            className="of-focus"
+            style={{ textAlign: "left", background: "#FFFFFF", border: "1px solid #E7E0CF", borderRadius: 6, padding: "16px 18px", fontSize: 15, color: "#2B2A26", cursor: "pointer", lineHeight: 1.4 }}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function QuizPopup({ onOpenQuiz }) {
   const [visible, setVisible] = useState(false);
 
@@ -531,16 +697,16 @@ function QuizPopup({ onOpenQuiz }) {
           <X size={20} />
         </button>
         <div className="of-mono" style={{ fontSize: 13, letterSpacing: 1, color: "#B8933D", marginBottom: 10 }}>10% KORTING</div>
-        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>4 weetjes over OlivaFix Gold</h2>
+        <h2 className="of-display" style={{ fontSize: 22, fontWeight: 600, marginBottom: 10, lineHeight: 1.3 }}>Wat voor klant ben jij?</h2>
         <p style={{ color: "#7D7A6F", fontSize: 15, lineHeight: 1.5, marginBottom: 22 }}>
-          Ontdek in 4 korte weetjes wat OlivaFix Gold anders maakt — en ontvang 10% korting op je eerste bestelling.
+          3 korte vragen, en wij vertellen je welke OlivaFix Gold het beste bij jou past — inclusief 10% korting op je eerste bestelling.
         </p>
         <button
           onClick={openFacts}
           className="of-btn of-focus"
           style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 14, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, marginBottom: 10 }}
         >
-          Bekijk de weetjes
+          Doe de test
         </button>
         <button
           onClick={dismiss}
@@ -760,9 +926,13 @@ export default function OlivafixShop() {
       )}
 
       {page === "quiz" && (
-        <FactsPage
-          onDone={() => { window.history.replaceState({}, "", "/"); setPage("home"); }}
-          onNavigate={(page) => { window.history.replaceState({}, "", "/"); setPage(page); }}
+        <PersonaQuiz
+          onAddAndGo={(productId) => {
+            addToCart(productId);
+            window.history.replaceState({}, "", "/");
+            setPage("home");
+            setCartOpen(true);
+          }}
         />
       )}
 
