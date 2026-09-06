@@ -770,7 +770,7 @@ export default function OlivafixShop() {
 
       {page === "home" && <>
       {/* Hero */}
-      <section className="of-hero-grid" style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 64px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+      <section className="of-hero-grid" style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 64px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
         <div>
           <div className="of-mono" style={{ color: "#7D8B5A", fontSize: 16, letterSpacing: 1.5, marginBottom: 16 }}>SWISS MADE · SINDS 2019</div>
           <h1 className="of-display" style={{ fontSize: "clamp(34px, 5vw, 52px)", lineHeight: 1.1, fontWeight: 600, margin: "0 0 20px" }}>
