@@ -794,8 +794,8 @@ export default function OlivafixShop() {
               <source src="/hero-video.mp4" type="video/mp4" />
             </video>
           </div>
-          <div style={{ borderRadius: 4, overflow: "hidden" }}>
-            <img src={HERO_IMAGE} alt="OlivaFix Gold naast verse olijven" style={{ width: "100%", height: "auto", display: "block", borderRadius: 4 }} />
+          <div style={{ borderRadius: 4, overflow: "hidden", position: "relative", width: "100%", aspectRatio: "4 / 5" }}>
+            <img src={HERO_IMAGE} alt="OlivaFix Gold naast verse olijven" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
           </div>
         </div>
       </section>
