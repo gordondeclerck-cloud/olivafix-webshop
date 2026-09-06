@@ -696,6 +696,7 @@ export default function OlivafixShop() {
         ::selection { background: #B8933D; color: #FBF8F1; }
         .of-focus:focus-visible { outline: 2px solid #1E4638; outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+        @media (max-width: 700px) { .of-hero-grid { grid-template-columns: 1fr !important; } }
       `}</style>
 
       {/* Nav */}
@@ -768,22 +769,8 @@ export default function OlivafixShop() {
       {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && <InfoPage page={page} onBack={() => setPage("home")} />}
 
       {page === "home" && <>
-      {/* Video */}
-      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 0", textAlign: "center" }}>
-        <div style={{ maxWidth: 340, margin: "0 auto" }}>
-          <video
-            controls
-            playsInline
-            poster="/video-poster.jpg"
-            style={{ width: "100%", borderRadius: 8, display: "block", boxShadow: "0 12px 32px rgba(30,70,56,0.15)" }}
-          >
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
-        </div>
-      </section>
-
       {/* Hero */}
-      <section style={{ maxWidth: 1180, margin: "0 auto", padding: "56px 24px 64px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+      <section className="of-hero-grid" style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 24px 64px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
         <div>
           <div className="of-mono" style={{ color: "#7D8B5A", fontSize: 16, letterSpacing: 1.5, marginBottom: 16 }}>SWISS MADE · SINDS 2019</div>
           <h1 className="of-display" style={{ fontSize: "clamp(34px, 5vw, 52px)", lineHeight: 1.1, fontWeight: 600, margin: "0 0 20px" }}>
@@ -796,8 +783,20 @@ export default function OlivafixShop() {
             Bekijk producten <ChevronRight size={14} />
           </a>
         </div>
-        <div style={{ borderRadius: 4, overflow: "hidden" }}>
-          <img src={HERO_IMAGE} alt="OlivaFix Gold naast verse olijven" style={{ width: "100%", height: "auto", display: "block", borderRadius: 4 }} />
+        <div>
+          <div style={{ maxWidth: 340, margin: "0 auto 20px" }}>
+            <video
+              controls
+              playsInline
+              poster="/video-poster.jpg"
+              style={{ width: "100%", borderRadius: 8, display: "block", boxShadow: "0 12px 32px rgba(30,70,56,0.15)" }}
+            >
+              <source src="/hero-video.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <div style={{ borderRadius: 4, overflow: "hidden" }}>
+            <img src={HERO_IMAGE} alt="OlivaFix Gold naast verse olijven" style={{ width: "100%", height: "auto", display: "block", borderRadius: 4 }} />
+          </div>
         </div>
       </section>
 
@@ -831,7 +830,7 @@ export default function OlivafixShop() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 28 }}>
           {products.map((p) => (
             <div key={p.id} className="of-card" style={{ background: "#FFFFFF", border: "1px solid #E7E0CF", borderRadius: 6, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              <div style={{ padding: 20, background: "#F5F1E6" }}>
+              <div style={{ padding: 20, background: "#FFFFFF" }}>
                 <img src={p.image} alt={p.name} style={{ width: "100%", height: 200, objectFit: "contain", display: "block" }} />
               </div>
               <div style={{ padding: 22, display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
