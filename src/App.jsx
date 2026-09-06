@@ -833,7 +833,7 @@ export default function OlivafixShop() {
               <div style={{ borderTop: "1px solid #E7E0CF", padding: "20px 0 24px", flexShrink: 0, background: "#FBF8F1" }}>
                 {total < 40 ? (
                   <div style={{ background: "#F1EAD3", border: "1px solid #D8C99A", borderRadius: 3, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#5B4E22" }}>
-                    Nog <strong>{currency(40 - total)}</strong> tot gratis verzending — voeg de 3-pack toe en bespaar!
+                    Verzendkosten vanaf <strong>€5,40</strong> (bpost). Nog <strong>{currency(40 - total)}</strong> tot <strong>gratis</strong> verzending — voeg de 3-pack toe en bespaar!
                   </div>
                 ) : (
                   <div style={{ background: "#E5EEE1", border: "1px solid #B9D4AE", borderRadius: 3, padding: "10px 12px", marginBottom: 14, fontSize: 13, color: "#1E4638", fontWeight: 600 }}>
