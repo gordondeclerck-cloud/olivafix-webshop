@@ -293,6 +293,57 @@ function ReviewsSection({ reviews }) {
   );
 }
 
+function ManageSubscriptionPage({ onBack }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(null); // null | "sending" | "error"
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+  const submit = async () => {
+    if (!isValidEmail(email)) { setStatus("error"); setErrorMessage("Vul een geldig e-mailadres in."); return; }
+    setStatus("sending");
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/create-portal-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setErrorMessage(data.error || "Er ging iets mis. Probeer het straks opnieuw.");
+        setStatus("error");
+      }
+    } catch (err) {
+      setErrorMessage("Kon geen verbinding maken met de server.");
+      setStatus("error");
+    }
+  };
+
+  return (
+    <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Beheer je abonnement</h1>
+      <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>Vul het e-mailadres van je abonnement in. We sturen je door naar een beveiligde pagina waar je kan annuleren, je betaalmethode wijzigen of je facturen bekijken.</p>
+
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} placeholder="jouw@email.be" />
+
+      {status === "error" && <p style={{ color: "#B3261E", fontSize: 15, marginBottom: 12, lineHeight: 1.6 }}>{errorMessage}</p>}
+
+      <button
+        onClick={submit}
+        disabled={status === "sending"}
+        className="of-btn of-focus"
+        style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+      >
+        {status === "sending" ? "Bezig..." : "Naar mijn abonnement"}
+      </button>
+    </section>
+  );
+}
+
 function ContactPage({ onBack }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -735,6 +786,35 @@ export default function OlivafixShop() {
   const [shippingCountry, setShippingCountry] = useState("BE");
   const SHIP_COST_ESTIMATES = { BE: 5.4, NL: 16.5, FR: 16.5, DE: 16.5, LU: 16.5, CH: 34.6 };
 
+  const [subscribeOpen, setSubscribeOpen] = useState({}); // { [productId]: boolean }
+  const [subscribeWeeks, setSubscribeWeeks] = useState({}); // { [productId]: number }
+  const [subscribeLoading, setSubscribeLoading] = useState(null); // productId dat momenteel bezig is, of null
+  const [subscribeError, setSubscribeError] = useState(null);
+  const INTERVAL_OPTIONS = [4, 6, 8, 12];
+
+  const startSubscription = async (productId) => {
+    setSubscribeError(null);
+    setSubscribeLoading(productId);
+    try {
+      const intervalWeeks = subscribeWeeks[productId] || 6;
+      const res = await fetch(`${BACKEND_URL}/api/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, intervalWeeks, shippingCountry }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setSubscribeError(data.error || "Er ging iets mis bij het starten van het abonnement.");
+      }
+    } catch (err) {
+      setSubscribeError("Kon geen verbinding maken met de server. Probeer het later opnieuw.");
+    } finally {
+      setSubscribeLoading(null);
+    }
+  };
+
   const startCheckout = async () => {
     setCheckoutError(null);
     setCheckoutLoading(true);
@@ -842,7 +922,9 @@ export default function OlivafixShop() {
 
       {page === "contact" && <ContactPage onBack={() => setPage("home")} />}
 
-      {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && page !== "contact" && <InfoPage page={page} onBack={() => setPage("home")} />}
+      {page === "manage-subscription" && <ManageSubscriptionPage onBack={() => setPage("home")} />}
+
+      {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && page !== "contact" && page !== "manage-subscription" && <InfoPage page={page} onBack={() => setPage("home")} />}
 
       {page === "home" && <>
       {/* Hero */}
@@ -917,15 +999,63 @@ export default function OlivafixShop() {
                   <span className="of-mono" style={{ fontSize: 19, fontWeight: 500 }}>{currency(p.price)}</span>
                   {p.compareAt && <span className="of-mono" style={{ fontSize: 16, color: "#A6A18E", textDecoration: "line-through" }}>{currency(p.compareAt)}</span>}
                 </div>
-                <button
-                  onClick={() => addToCart(p.id)}
-                  className="of-btn of-focus"
-                  style={{ marginTop: 6, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 0", fontSize: 16, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#163329")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "#1E4638")}
-                >
-                  Toevoegen aan winkelwagen
-                </button>
+
+                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                  <button
+                    onClick={() => setSubscribeOpen((s) => ({ ...s, [p.id]: false }))}
+                    className="of-focus"
+                    style={{ flex: 1, background: !subscribeOpen[p.id] ? "#1E4638" : "#FFFFFF", color: !subscribeOpen[p.id] ? "#FBF8F1" : "#5B584F", border: "1px solid #1E4638", padding: "8px 0", fontSize: 13, letterSpacing: 0.5, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+                  >
+                    Eenmalig
+                  </button>
+                  <button
+                    onClick={() => setSubscribeOpen((s) => ({ ...s, [p.id]: true }))}
+                    className="of-focus"
+                    style={{ flex: 1, background: subscribeOpen[p.id] ? "#1E4638" : "#FFFFFF", color: subscribeOpen[p.id] ? "#FBF8F1" : "#5B584F", border: "1px solid #1E4638", padding: "8px 0", fontSize: 13, letterSpacing: 0.5, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+                  >
+                    Abonneren · -10%
+                  </button>
+                </div>
+
+                {subscribeOpen[p.id] ? (
+                  <>
+                    <label style={{ fontSize: 13, color: "#7D7A6F", marginTop: 8 }}>
+                      Elke
+                      <select
+                        value={subscribeWeeks[p.id] || 6}
+                        onChange={(e) => setSubscribeWeeks((s) => ({ ...s, [p.id]: Number(e.target.value) }))}
+                        style={{ margin: "0 6px", padding: "4px 6px", borderRadius: 3, border: "1px solid #E7E0CF" }}
+                      >
+                        {INTERVAL_OPTIONS.map((w) => (
+                          <option key={w} value={w}>{w} weken</option>
+                        ))}
+                      </select>
+                      een nieuwe levering
+                    </label>
+                    <div className="of-mono" style={{ fontSize: 15, color: "#1E4638" }}>
+                      {currency(p.price * 0.9)} <span style={{ color: "#7D7A6F", fontWeight: 400 }}>per levering</span>
+                    </div>
+                    {subscribeError && <p style={{ color: "#B3261E", fontSize: 13 }}>{subscribeError}</p>}
+                    <button
+                      onClick={() => startSubscription(p.id)}
+                      disabled={subscribeLoading === p.id}
+                      className="of-btn of-focus"
+                      style={{ marginTop: 6, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 0", fontSize: 16, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: subscribeLoading === p.id ? 0.7 : 1 }}
+                    >
+                      {subscribeLoading === p.id ? "Bezig..." : "Start abonnement"}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => addToCart(p.id)}
+                    className="of-btn of-focus"
+                    style={{ marginTop: 6, background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 0", fontSize: 16, letterSpacing: 1.2, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#163329")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#1E4638")}
+                  >
+                    Toevoegen aan winkelwagen
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -967,6 +1097,7 @@ export default function OlivafixShop() {
         <div style={{ marginBottom: 12, display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
           <button onClick={() => { window.history.pushState({}, "", "/"); setPage("privacy"); }} className="of-focus" style={{ background: "none", border: "none", color: "#A6A18E", fontSize: 14, cursor: "pointer", textDecoration: "underline", padding: 0 }}>Privacyverklaring</button>
           <button onClick={() => { window.history.pushState({}, "", "/"); setPage("terms"); }} className="of-focus" style={{ background: "none", border: "none", color: "#A6A18E", fontSize: 14, cursor: "pointer", textDecoration: "underline", padding: 0 }}>Algemene voorwaarden</button>
+          <button onClick={() => { window.history.pushState({}, "", "/"); setPage("manage-subscription"); }} className="of-focus" style={{ background: "none", border: "none", color: "#A6A18E", fontSize: 14, cursor: "pointer", textDecoration: "underline", padding: 0 }}>Beheer abonnement</button>
         </div>
         OlivaFix Gold — een product van Bonyf. Swiss made.
       </footer>
