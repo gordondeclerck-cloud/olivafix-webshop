@@ -1013,7 +1013,7 @@ export default function OlivafixShop() {
                     className="of-focus"
                     style={{ flex: 1, background: subscribeOpen[p.id] ? "#1E4638" : "#FFFFFF", color: subscribeOpen[p.id] ? "#FBF8F1" : "#5B584F", border: "1px solid #1E4638", padding: "8px 0", fontSize: 13, letterSpacing: 0.5, textTransform: "uppercase", cursor: "pointer", borderRadius: 3 }}
                   >
-                    Abonneren · -10%
+                    Abonneer & bespaar 10%
                   </button>
                 </div>
 
