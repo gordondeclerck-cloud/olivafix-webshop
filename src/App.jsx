@@ -83,14 +83,6 @@ const PAGES = {
       "Voor vragen over een specifieke bestelling, verzendkosten of de status van je pakket kun je terecht bij onze klantenservice via de contactpagina.",
     ],
   },
-  contact: {
-    title: "Contact",
-    intro: "Vragen over OlivaFix Gold, je bestelling, of iets anders? We horen graag van je.",
-    body: [
-      "Je kunt ons bereiken via e-mail — vermeld bij voorkeur je bestelnummer als je vraag over een bestelling gaat, dan kunnen we je sneller helpen.",
-      "We proberen binnen 1-2 werkdagen te reageren op berichten.",
-    ],
-  },
   privacy: {
     title: "Privacyverklaring",
     intro: "Hoe Bonyf NV omgaat met jouw persoonsgegevens wanneer je onze webshop gebruikt.",
@@ -301,9 +293,80 @@ function ReviewsSection({ reviews }) {
   );
 }
 
+function ContactPage({ onBack }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(null); // null | "sending" | "sent" | "invalid" | "server"
+  const [serverMessage, setServerMessage] = useState("");
+
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+  const submit = async () => {
+    if (!name.trim() || !isValidEmail(email) || !message.trim()) { setStatus("invalid"); return; }
+    setStatus("sending");
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
+      });
+      if (!res.ok) {
+        let msg = "";
+        try { msg = (await res.json()).error || ""; } catch {}
+        setServerMessage(msg);
+        setStatus("server");
+        return;
+      }
+      setStatus("sent");
+    } catch (err) {
+      console.error("contact request failed:", err);
+      setServerMessage("");
+      setStatus("server");
+    }
+  };
+
+  if (status === "sent") {
+    return (
+      <section style={{ maxWidth: 500, margin: "0 auto", padding: "72px 24px", textAlign: "center" }}>
+        <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 12 }}>Bedankt voor je bericht!</h1>
+        <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 24, lineHeight: 1.6 }}>We reageren meestal binnen 1-2 werkdagen. Check ook je inbox — je hebt een bevestiging ontvangen.</p>
+        <button onClick={onBack} className="of-focus" style={{ background: "#1E4638", color: "#FBF8F1", border: "none", padding: "12px 24px", borderRadius: 3, cursor: "pointer" }}>Naar de winkel</button>
+      </section>
+    );
+  }
+
+  return (
+    <section style={{ maxWidth: 500, margin: "0 auto", padding: "56px 24px 80px" }}>
+      <h1 className="of-display" style={{ fontSize: 26, fontWeight: 600, marginBottom: 8 }}>Contact</h1>
+      <p style={{ color: "#7D7A6F", fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>Vragen over OlivaFix Gold, je bestelling, of iets anders? We horen graag van je.</p>
+
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>Je naam</label>
+      <input value={name} onChange={(e) => setName(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} placeholder="Bijvoorbeeld: Marie D." />
+
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>E-mailadres</label>
+      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} placeholder="jouw@email.be" />
+
+      <label style={{ display: "block", fontSize: 16, color: "#7D7A6F", marginBottom: 6 }}>Je bericht</label>
+      <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={5} style={{ ...inputStyle, marginBottom: 20, resize: "vertical" }} placeholder="Waar kunnen we je mee helpen?" />
+
+      {status === "invalid" && <p style={{ color: "#B3261E", fontSize: 15, marginBottom: 12, lineHeight: 1.6 }}>Vul je naam, een geldig e-mailadres en een bericht in.</p>}
+      {status === "server" && <p style={{ color: "#B3261E", fontSize: 15, marginBottom: 12, lineHeight: 1.6 }}>{serverMessage || "Er ging iets mis bij het versturen. Probeer het straks opnieuw."}</p>}
+
+      <button
+        onClick={submit}
+        disabled={status === "sending"}
+        className="of-btn of-focus"
+        style={{ width: "100%", background: "#1E4638", color: "#FBF8F1", border: "none", padding: "14px 0", fontSize: 15, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer", borderRadius: 3, opacity: status === "sending" ? 0.7 : 1 }}
+      >
+        {status === "sending" ? "Bezig..." : "Bericht versturen"}
+      </button>
+    </section>
+  );
+}
+
 function ReviewFormPage({ orderId, onDone }) {
   const [name, setName] = useState("");
-  const [rating, setRating] = useState(5);
   const [body, setBody] = useState("");
   const [status, setStatus] = useState(null); // null | "sending" | "sent" | "error"
 
@@ -777,7 +840,9 @@ export default function OlivafixShop() {
         />
       )}
 
-      {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && <InfoPage page={page} onBack={() => setPage("home")} />}
+      {page === "contact" && <ContactPage onBack={() => setPage("home")} />}
+
+      {page !== "home" && page !== "success" && page !== "review" && page !== "quiz" && page !== "contact" && <InfoPage page={page} onBack={() => setPage("home")} />}
 
       {page === "home" && <>
       {/* Hero */}
