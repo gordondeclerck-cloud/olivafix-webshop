@@ -731,6 +731,12 @@ export default function OlivafixShop() {
     if (window.location.pathname === "/quiz") {
       setPage("quiz");
     }
+    if (window.location.pathname === "/manage-subscription") {
+      setPage("manage-subscription");
+    }
+    if (window.location.pathname === "/contact") {
+      setPage("contact");
+    }
   }, []);
 
   const [upsellStatus, setUpsellStatus] = useState({}); // { [id]: "loading" | "success" | "error" | "redirecting" }
